@@ -13,7 +13,6 @@ export default function ThemeToggle({ className = '' }: ThemeToggleProps) {
 
   useEffect(() => {
     setMounted(true)
-    // Get initial theme
     const savedTheme = localStorage.getItem('africrea-theme') as 'dark' | 'light' | null
     const initialTheme = savedTheme || (document.documentElement.classList.contains('light') ? 'light' : 'dark')
     setTheme(initialTheme)
@@ -22,30 +21,25 @@ export default function ThemeToggle({ className = '' }: ThemeToggleProps) {
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark'
     setTheme(newTheme)
-    
-    // Apply to DOM
     document.documentElement.classList.remove('light', 'dark')
     document.documentElement.classList.add(newTheme)
-    
-    // Save to localStorage
     localStorage.setItem('africrea-theme', newTheme)
   }
 
-  // Always render a visible button
   return (
     <button
       onClick={toggleTheme}
-      className={`p-3 rounded-xl transition-all duration-300 ${
+      className={`p-2 rounded-lg transition-all duration-200 ${
         mounted && theme === 'light'
           ? 'bg-amber-100 hover:bg-amber-200 text-amber-600'
-          : 'bg-slate-800 hover:bg-slate-700 text-yellow-400'
+          : 'bg-slate-700 hover:bg-slate-600 text-yellow-400'
       } ${className}`}
       aria-label={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
     >
       {mounted && theme === 'light' ? (
-        <Moon className="w-5 h-5" />
+        <Moon className="w-4 h-4" />
       ) : (
-        <Sun className="w-5 h-5" />
+        <Sun className="w-4 h-4" />
       )}
     </button>
   )
