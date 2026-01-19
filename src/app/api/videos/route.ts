@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+
 // GET - Récupérer toutes les vidéos
 export async function GET() {
   try {

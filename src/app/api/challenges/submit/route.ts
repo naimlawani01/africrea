@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+
 // POST - Soumettre un travail pour un défi (Étudiants seulement)
 export async function POST(req: Request) {
   try {
