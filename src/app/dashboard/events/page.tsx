@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Header from '@/components/dashboard/Header'
 import { 
@@ -16,89 +16,40 @@ import {
   Presentation,
   Wrench,
   Mic,
-  Network
+  Network,
+  Loader2,
+  AlertCircle,
+  X
 } from 'lucide-react'
 
-const events = [
-  {
-    id: '1',
-    title: 'Masterclass Design UI/UX',
-    description: 'Apprenez les fondamentaux du design d\'interface avec un expert de Google.',
-    type: 'MASTERCLASS',
-    date: '2024-01-25',
-    time: '14:00',
-    endTime: '17:00',
-    location: 'Studio A',
-    isOnline: false,
-    maxAttendees: 20,
-    currentAttendees: 18,
-    thumbnail: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400',
-    speaker: 'Jean-Marc Dupont',
-  },
-  {
-    id: '2',
-    title: 'Atelier Blender - Modélisation',
-    description: 'Session pratique de modélisation 3D sur Blender pour les débutants.',
-    type: 'WORKSHOP',
-    date: '2024-01-28',
-    time: '10:00',
-    endTime: '13:00',
-    location: 'Salle Informatique',
-    isOnline: false,
-    maxAttendees: 15,
-    currentAttendees: 12,
-    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400',
-  },
-  {
-    id: '3',
-    title: 'Conférence - L\'avenir du Cinéma Africain',
-    description: 'Discussion sur les tendances et opportunités du cinéma africain.',
-    type: 'CONFERENCE',
-    date: '2024-02-02',
-    time: '18:00',
-    endTime: '20:00',
-    location: 'Auditorium',
-    isOnline: true,
-    meetingLink: 'https://meet.google.com/abc-defg-hij',
-    maxAttendees: 100,
-    currentAttendees: 45,
-    thumbnail: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400',
-    speaker: 'Aminata Diallo',
-  },
-  {
-    id: '4',
-    title: 'Session Studio - Éclairage Portrait',
-    description: 'Pratique en studio avec notre expert lumière.',
-    type: 'STUDIO_SESSION',
-    date: '2024-02-05',
-    time: '09:00',
-    endTime: '12:00',
-    location: 'Studio Photo',
-    isOnline: false,
-    maxAttendees: 8,
-    currentAttendees: 8,
-    thumbnail: 'https://images.unsplash.com/photo-1598549746738-3fb2d6bdb0da?w=400',
-  },
-  {
-    id: '5',
-    title: 'Networking - Créatifs d\'Abidjan',
-    description: 'Rencontrez d\'autres créatifs et élargissez votre réseau professionnel.',
-    type: 'NETWORKING',
-    date: '2024-02-10',
-    time: '19:00',
-    endTime: '22:00',
-    location: 'Rooftop Africréa',
-    isOnline: false,
-    maxAttendees: 50,
-    currentAttendees: 32,
-    thumbnail: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400',
-  },
-]
+interface Event {
+  id: string
+  title: string
+  description: string
+  type: string
+  date: string
+  endDate: string | null
+  location: string
+  isOnline: boolean
+  meetingLink: string | null
+  maxAttendees: number | null
+  thumbnail: string | null
+  creator: {
+    firstName: string
+    lastName: string
+  }
+  registrations: {
+    id: string
+    status: string
+  }[]
+}
 
-const myRegistrations = [
-  { eventId: '1', status: 'CONFIRMED' },
-  { eventId: '3', status: 'WAITLIST' },
-]
+interface MyRegistration {
+  id: string
+  eventId: string
+  status: string
+  event: Event
+}
 
 const typeConfig: Record<string, { label: string; bg: string; text: string; icon: React.ElementType }> = {
   MASTERCLASS: { label: 'Masterclass', bg: 'bg-purple-500/10', text: 'text-purple-400', icon: Star },
@@ -112,16 +63,96 @@ const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet'
 const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
 
 export default function EventsPage() {
-  const [currentDate, setCurrentDate] = useState(new Date(2024, 0, 1)) // January 2024
-  const [selectedEvent, setSelectedEvent] = useState<typeof events[0] | null>(null)
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
+  
+  const [events, setEvents] = useState<Event[]>([])
+  const [myRegistrations, setMyRegistrations] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
+  const [registering, setRegistering] = useState<string | null>(null)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-  const getRegistrationStatus = (eventId: string) => {
-    return myRegistrations.find(r => r.eventId === eventId)?.status
+  useEffect(() => {
+    fetchEvents()
+  }, [])
+
+  const fetchEvents = async () => {
+    try {
+      const res = await fetch('/api/events')
+      if (res.ok) {
+        const data = await res.json()
+        setEvents(data)
+        
+        // Extraire les événements auxquels l'utilisateur est inscrit
+        // (On pourrait aussi faire un appel séparé pour les inscriptions de l'utilisateur)
+      }
+    } catch (error) {
+      console.error('Error:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const isEventFull = (event: typeof events[0]) => {
-    return event.currentAttendees >= (event.maxAttendees || Infinity)
+  const handleRegister = async (eventId: string) => {
+    setRegistering(eventId)
+    setMessage(null)
+
+    try {
+      const res = await fetch('/api/events/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId })
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'Inscription réussie !' })
+        setMyRegistrations([...myRegistrations, eventId])
+        fetchEvents()
+        setSelectedEvent(null)
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Erreur lors de l\'inscription' })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Erreur de connexion' })
+    } finally {
+      setRegistering(null)
+    }
+  }
+
+  const handleUnregister = async (eventId: string) => {
+    setRegistering(eventId)
+    setMessage(null)
+
+    try {
+      const res = await fetch(`/api/events/register?eventId=${eventId}`, {
+        method: 'DELETE'
+      })
+
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'Désinscription réussie' })
+        setMyRegistrations(myRegistrations.filter(id => id !== eventId))
+        fetchEvents()
+      } else {
+        const data = await res.json()
+        setMessage({ type: 'error', text: data.error || 'Erreur' })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Erreur de connexion' })
+    } finally {
+      setRegistering(null)
+    }
+  }
+
+  const getRegistrationCount = (event: Event) => {
+    return event.registrations?.filter(r => r.status === 'CONFIRMED').length || 0
+  }
+
+  const isEventFull = (event: Event) => {
+    if (!event.maxAttendees) return false
+    return getRegistrationCount(event) >= event.maxAttendees
   }
 
   const goToPreviousMonth = () => {
@@ -140,17 +171,15 @@ export default function EventsPage() {
     const daysInMonth = lastDay.getDate()
     const startingDay = firstDay.getDay()
     
-    const calendarDays = []
+    const calendarDays: { day: number | null; isCurrentMonth: boolean; events?: Event[] }[] = []
     
-    // Previous month days
     for (let i = 0; i < startingDay; i++) {
       calendarDays.push({ day: null, isCurrentMonth: false })
     }
     
-    // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`
-      const dayEvents = events.filter(e => e.date === dateStr)
+      const dayEvents = events.filter(e => e.date.startsWith(dateStr))
       calendarDays.push({ day: i, isCurrentMonth: true, events: dayEvents })
     }
     
@@ -158,6 +187,17 @@ export default function EventsPage() {
   }
 
   const calendarDays = getDaysInMonth(currentDate)
+
+  if (loading) {
+    return (
+      <>
+        <Header title="Événements" subtitle="Chargement..." />
+        <div className="flex items-center justify-center h-96">
+          <Loader2 className="w-8 h-8 text-africrea-green-500 animate-spin" />
+        </div>
+      </>
+    )
+  }
 
   return (
     <>
@@ -167,6 +207,25 @@ export default function EventsPage() {
       />
       
       <div className="p-8">
+        {/* Message */}
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${
+              message.type === 'success' 
+                ? 'bg-green-500/10 border border-green-500/30 text-green-400'
+                : 'bg-red-500/10 border border-red-500/30 text-red-400'
+            }`}
+          >
+            {message.type === 'success' ? <Check className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+            {message.text}
+            <button onClick={() => setMessage(null)} className="ml-auto">
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+
         {/* View Toggle */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex bg-white/5 rounded-xl p-1">
@@ -189,99 +248,105 @@ export default function EventsPage() {
           </div>
 
           <div className="text-white/50 text-sm">
-            {myRegistrations.length} inscription(s)
+            {events.length} événement(s)
           </div>
         </div>
 
         {viewMode === 'list' ? (
           /* List View */
           <div className="space-y-6">
-            {events.map((event) => {
-              const config = typeConfig[event.type]
-              const TypeIcon = config.icon
-              const registrationStatus = getRegistrationStatus(event.id)
-              const isFull = isEventFull(event)
-              
-              return (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ x: 4 }}
-                  className="flex gap-6 p-6 bg-[#141414] border border-white/5 rounded-2xl hover:border-africrea-green-500/30 transition-all cursor-pointer"
-                  onClick={() => setSelectedEvent(event)}
-                >
-                  {/* Date Badge */}
-                  <div className="flex-shrink-0 w-20 h-20 rounded-2xl bg-africrea-green-500/10 flex flex-col items-center justify-center">
-                    <span className="text-africrea-green-400 text-sm font-medium">
-                      {months[new Date(event.date).getMonth()].slice(0, 3)}
-                    </span>
-                    <span className="text-white text-2xl font-bold">
-                      {new Date(event.date).getDate()}
-                    </span>
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className={`px-3 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 ${config.bg} ${config.text}`}>
-                        <TypeIcon className="w-3.5 h-3.5" />
-                        {config.label}
+            {events.length === 0 ? (
+              <div className="text-center py-16">
+                <Calendar className="w-16 h-16 text-white/20 mx-auto mb-4" />
+                <h3 className="text-white/60 text-lg">Aucun événement à venir</h3>
+              </div>
+            ) : (
+              events.map((event) => {
+                const config = typeConfig[event.type] || typeConfig.WORKSHOP
+                const TypeIcon = config.icon
+                const isFull = isEventFull(event)
+                const attendeeCount = getRegistrationCount(event)
+                
+                return (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ x: 4 }}
+                    className="flex gap-6 p-6 bg-[#141414] border border-white/5 rounded-2xl hover:border-africrea-green-500/30 transition-all cursor-pointer"
+                    onClick={() => setSelectedEvent(event)}
+                  >
+                    {/* Date Badge */}
+                    <div className="flex-shrink-0 w-20 h-20 rounded-2xl bg-africrea-green-500/10 flex flex-col items-center justify-center">
+                      <span className="text-africrea-green-400 text-sm font-medium">
+                        {months[new Date(event.date).getMonth()].slice(0, 3)}
                       </span>
-                      {event.isOnline && (
-                        <span className="px-2 py-1 bg-blue-500/10 text-blue-400 text-xs rounded-lg flex items-center gap-1">
-                          <Video className="w-3 h-3" />
-                          En ligne
-                        </span>
-                      )}
-                      {registrationStatus === 'CONFIRMED' && (
-                        <span className="px-2 py-1 bg-green-500/10 text-green-400 text-xs rounded-lg flex items-center gap-1">
-                          <Check className="w-3 h-3" />
-                          Inscrit
-                        </span>
-                      )}
-                      {registrationStatus === 'WAITLIST' && (
-                        <span className="px-2 py-1 bg-yellow-500/10 text-yellow-400 text-xs rounded-lg">
-                          Liste d&apos;attente
-                        </span>
-                      )}
-                    </div>
-                    
-                    <h3 className="text-white font-semibold text-lg mb-2">{event.title}</h3>
-                    <p className="text-white/50 text-sm mb-4">{event.description}</p>
-                    
-                    <div className="flex items-center gap-6 text-white/40 text-sm">
-                      <span className="flex items-center gap-1.5">
-                        <Clock className="w-4 h-4" />
-                        {event.time} - {event.endTime}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <MapPin className="w-4 h-4" />
-                        {event.location}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Users className="w-4 h-4" />
-                        {event.currentAttendees}/{event.maxAttendees} places
+                      <span className="text-white text-2xl font-bold">
+                        {new Date(event.date).getDate()}
                       </span>
                     </div>
-                  </div>
 
-                  {/* Action */}
-                  <div className="flex-shrink-0 flex items-center">
-                    {!registrationStatus && !isFull && (
-                      <button className="px-5 py-2.5 bg-africrea-green-500 hover:bg-africrea-green-600 text-white rounded-xl font-medium transition-colors">
-                        S&apos;inscrire
-                      </button>
-                    )}
-                    {isFull && !registrationStatus && (
-                      <button className="px-5 py-2.5 bg-white/10 text-white/60 rounded-xl font-medium cursor-not-allowed">
-                        Complet
-                      </button>
-                    )}
-                  </div>
-                </motion.div>
-              )
-            })}
+                    {/* Content */}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className={`px-3 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 ${config.bg} ${config.text}`}>
+                          <TypeIcon className="w-3.5 h-3.5" />
+                          {config.label}
+                        </span>
+                        {event.isOnline && (
+                          <span className="px-2 py-1 bg-blue-500/10 text-blue-400 text-xs rounded-lg flex items-center gap-1">
+                            <Video className="w-3 h-3" />
+                            En ligne
+                          </span>
+                        )}
+                      </div>
+                      
+                      <h3 className="text-white font-semibold text-lg mb-2">{event.title}</h3>
+                      <p className="text-white/50 text-sm mb-4 line-clamp-2">{event.description}</p>
+                      
+                      <div className="flex items-center gap-6 text-white/40 text-sm">
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="w-4 h-4" />
+                          {new Date(event.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="w-4 h-4" />
+                          {event.location}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Users className="w-4 h-4" />
+                          {attendeeCount}{event.maxAttendees ? `/${event.maxAttendees}` : ''} places
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Action */}
+                    <div className="flex-shrink-0 flex items-center">
+                      {!isFull ? (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleRegister(event.id)
+                          }}
+                          disabled={registering === event.id}
+                          className="px-5 py-2.5 bg-africrea-green-500 hover:bg-africrea-green-600 disabled:bg-africrea-green-500/50 text-white rounded-xl font-medium transition-colors flex items-center gap-2"
+                        >
+                          {registering === event.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            "S'inscrire"
+                          )}
+                        </button>
+                      ) : (
+                        <button className="px-5 py-2.5 bg-white/10 text-white/60 rounded-xl font-medium cursor-not-allowed">
+                          Complet
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                )
+              })
+            )}
           </div>
         ) : (
           /* Calendar View */
@@ -330,7 +395,7 @@ export default function EventsPage() {
                       {dayData.events && dayData.events.length > 0 && (
                         <div className="mt-1 space-y-1">
                           {dayData.events.slice(0, 2).map((event) => {
-                            const config = typeConfig[event.type]
+                            const config = typeConfig[event.type] || typeConfig.WORKSHOP
                             return (
                               <div
                                 key={event.id}
@@ -374,16 +439,18 @@ export default function EventsPage() {
               className="w-full max-w-lg bg-[#141414] border border-white/10 rounded-3xl overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              <img 
-                src={selectedEvent.thumbnail} 
-                alt={selectedEvent.title}
-                className="w-full h-48 object-cover"
-              />
+              {selectedEvent.thumbnail && (
+                <img 
+                  src={selectedEvent.thumbnail} 
+                  alt={selectedEvent.title}
+                  className="w-full h-48 object-cover"
+                />
+              )}
               
               <div className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className={`px-3 py-1 rounded-lg text-xs font-medium ${typeConfig[selectedEvent.type].bg} ${typeConfig[selectedEvent.type].text}`}>
-                    {typeConfig[selectedEvent.type].label}
+                  <span className={`px-3 py-1 rounded-lg text-xs font-medium ${(typeConfig[selectedEvent.type] || typeConfig.WORKSHOP).bg} ${(typeConfig[selectedEvent.type] || typeConfig.WORKSHOP).text}`}>
+                    {(typeConfig[selectedEvent.type] || typeConfig.WORKSHOP).label}
                   </span>
                   {selectedEvent.isOnline && (
                     <span className="px-2 py-1 bg-blue-500/10 text-blue-400 text-xs rounded-lg flex items-center gap-1">
@@ -396,11 +463,11 @@ export default function EventsPage() {
                 <h2 className="text-2xl font-bold text-white mb-3">{selectedEvent.title}</h2>
                 <p className="text-white/60 mb-6">{selectedEvent.description}</p>
                 
-                {selectedEvent.speaker && (
-                  <div className="mb-4 p-3 bg-africrea-gold-500/10 border border-africrea-gold-500/20 rounded-xl">
-                    <span className="text-africrea-gold-400 text-sm">Intervenant : {selectedEvent.speaker}</span>
-                  </div>
-                )}
+                <div className="mb-4 p-3 bg-africrea-gold-500/10 border border-africrea-gold-500/20 rounded-xl">
+                  <span className="text-africrea-gold-400 text-sm">
+                    Organisé par : {selectedEvent.creator.firstName} {selectedEvent.creator.lastName}
+                  </span>
+                </div>
                 
                 <div className="space-y-3 mb-6 text-white/60">
                   <div className="flex items-center gap-3">
@@ -409,7 +476,7 @@ export default function EventsPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <Clock className="w-5 h-5 text-africrea-green-400" />
-                    <span>{selectedEvent.time} - {selectedEvent.endTime}</span>
+                    <span>{new Date(selectedEvent.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <MapPin className="w-5 h-5 text-africrea-green-400" />
@@ -417,19 +484,26 @@ export default function EventsPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <Users className="w-5 h-5 text-africrea-green-400" />
-                    <span>{selectedEvent.currentAttendees}/{selectedEvent.maxAttendees} participants</span>
+                    <span>{getRegistrationCount(selectedEvent)}{selectedEvent.maxAttendees ? `/${selectedEvent.maxAttendees}` : ''} participants</span>
                   </div>
                 </div>
                 
                 <button
-                  className={`w-full py-4 rounded-xl font-semibold transition-colors ${
+                  onClick={() => handleRegister(selectedEvent.id)}
+                  disabled={registering === selectedEvent.id || isEventFull(selectedEvent)}
+                  className={`w-full py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 ${
                     isEventFull(selectedEvent)
                       ? 'bg-white/10 text-white/60 cursor-not-allowed'
                       : 'bg-africrea-green-500 hover:bg-africrea-green-600 text-white'
                   }`}
-                  disabled={isEventFull(selectedEvent)}
                 >
-                  {isEventFull(selectedEvent) ? 'Événement complet' : 'S\'inscrire à cet événement'}
+                  {registering === selectedEvent.id ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : isEventFull(selectedEvent) ? (
+                    'Événement complet'
+                  ) : (
+                    "S'inscrire à cet événement"
+                  )}
                 </button>
               </div>
             </motion.div>
@@ -439,4 +513,3 @@ export default function EventsPage() {
     </>
   )
 }
-
