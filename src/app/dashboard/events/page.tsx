@@ -19,7 +19,8 @@ import {
   Network,
   Loader2,
   AlertCircle,
-  X
+  X,
+  UserCheck
 } from 'lucide-react'
 
 interface Event {
@@ -41,14 +42,10 @@ interface Event {
   registrations: {
     id: string
     status: string
+    userId: string
   }[]
-}
-
-interface MyRegistration {
-  id: string
-  eventId: string
-  status: string
-  event: Event
+  isRegistered: boolean
+  myRegistrationStatus: string | null
 }
 
 const typeConfig: Record<string, { label: string; bg: string; text: string; icon: React.ElementType }> = {
@@ -68,7 +65,6 @@ export default function EventsPage() {
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
   
   const [events, setEvents] = useState<Event[]>([])
-  const [myRegistrations, setMyRegistrations] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [registering, setRegistering] = useState<string | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -83,9 +79,6 @@ export default function EventsPage() {
       if (res.ok) {
         const data = await res.json()
         setEvents(data)
-        
-        // Extraire les événements auxquels l'utilisateur est inscrit
-        // (On pourrait aussi faire un appel séparé pour les inscriptions de l'utilisateur)
       }
     } catch (error) {
       console.error('Error:', error)
@@ -109,8 +102,7 @@ export default function EventsPage() {
 
       if (res.ok) {
         setMessage({ type: 'success', text: 'Inscription réussie !' })
-        setMyRegistrations([...myRegistrations, eventId])
-        fetchEvents()
+        fetchEvents() // Recharger pour mettre à jour isRegistered
         setSelectedEvent(null)
       } else {
         setMessage({ type: 'error', text: data.error || 'Erreur lors de l\'inscription' })
@@ -133,8 +125,8 @@ export default function EventsPage() {
 
       if (res.ok) {
         setMessage({ type: 'success', text: 'Désinscription réussie' })
-        setMyRegistrations(myRegistrations.filter(id => id !== eventId))
         fetchEvents()
+        setSelectedEvent(null)
       } else {
         const data = await res.json()
         setMessage({ type: 'error', text: data.error || 'Erreur' })
@@ -178,8 +170,13 @@ export default function EventsPage() {
     }
     
     for (let i = 1; i <= daysInMonth; i++) {
-      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`
-      const dayEvents = events.filter(e => e.date.startsWith(dateStr))
+      // Comparer les dates correctement
+      const dayEvents = events.filter(e => {
+        const eventDate = new Date(e.date)
+        return eventDate.getFullYear() === year && 
+               eventDate.getMonth() === month && 
+               eventDate.getDate() === i
+      })
       calendarDays.push({ day: i, isCurrentMonth: true, events: dayEvents })
     }
     
@@ -187,6 +184,7 @@ export default function EventsPage() {
   }
 
   const calendarDays = getDaysInMonth(currentDate)
+  const registeredCount = events.filter(e => e.isRegistered).length
 
   if (loading) {
     return (
@@ -247,8 +245,14 @@ export default function EventsPage() {
             </button>
           </div>
 
-          <div className="text-white/50 text-sm">
-            {events.length} événement(s)
+          <div className="flex items-center gap-4 text-white/50 text-sm">
+            <span>{events.length} événement(s)</span>
+            {registeredCount > 0 && (
+              <span className="flex items-center gap-1 text-africrea-green-400">
+                <UserCheck className="w-4 h-4" />
+                {registeredCount} inscription(s)
+              </span>
+            )}
           </div>
         </div>
 
@@ -273,7 +277,9 @@ export default function EventsPage() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     whileHover={{ x: 4 }}
-                    className="flex gap-6 p-6 bg-[#141414] border border-white/5 rounded-2xl hover:border-africrea-green-500/30 transition-all cursor-pointer"
+                    className={`flex gap-6 p-6 bg-[#141414] border rounded-2xl hover:border-africrea-green-500/30 transition-all cursor-pointer ${
+                      event.isRegistered ? 'border-africrea-green-500/50' : 'border-white/5'
+                    }`}
                     onClick={() => setSelectedEvent(event)}
                   >
                     {/* Date Badge */}
@@ -299,6 +305,12 @@ export default function EventsPage() {
                             En ligne
                           </span>
                         )}
+                        {event.isRegistered && (
+                          <span className="px-2 py-1 bg-africrea-green-500/10 text-africrea-green-400 text-xs rounded-lg flex items-center gap-1">
+                            <Check className="w-3 h-3" />
+                            Inscrit
+                          </span>
+                        )}
                       </div>
                       
                       <h3 className="text-white font-semibold text-lg mb-2">{event.title}</h3>
@@ -322,7 +334,26 @@ export default function EventsPage() {
 
                     {/* Action */}
                     <div className="flex-shrink-0 flex items-center">
-                      {!isFull ? (
+                      {event.isRegistered ? (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleUnregister(event.id)
+                          }}
+                          disabled={registering === event.id}
+                          className="px-5 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl font-medium transition-colors flex items-center gap-2"
+                        >
+                          {registering === event.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            "Se désinscrire"
+                          )}
+                        </button>
+                      ) : isFull ? (
+                        <button className="px-5 py-2.5 bg-white/10 text-white/60 rounded-xl font-medium cursor-not-allowed">
+                          Complet
+                        </button>
+                      ) : (
                         <button 
                           onClick={(e) => {
                             e.stopPropagation()
@@ -336,10 +367,6 @@ export default function EventsPage() {
                           ) : (
                             "S'inscrire"
                           )}
-                        </button>
-                      ) : (
-                        <button className="px-5 py-2.5 bg-white/10 text-white/60 rounded-xl font-medium cursor-not-allowed">
-                          Complet
                         </button>
                       )}
                     </div>
@@ -400,7 +427,9 @@ export default function EventsPage() {
                               <div
                                 key={event.id}
                                 onClick={() => setSelectedEvent(event)}
-                                className={`text-xs px-2 py-1 rounded ${config.bg} ${config.text} truncate cursor-pointer hover:opacity-80`}
+                                className={`text-xs px-2 py-1 rounded ${config.bg} ${config.text} truncate cursor-pointer hover:opacity-80 ${
+                                  event.isRegistered ? 'ring-1 ring-africrea-green-500' : ''
+                                }`}
                               >
                                 {event.title}
                               </div>
@@ -458,6 +487,12 @@ export default function EventsPage() {
                       En ligne
                     </span>
                   )}
+                  {selectedEvent.isRegistered && (
+                    <span className="px-2 py-1 bg-africrea-green-500/10 text-africrea-green-400 text-xs rounded-lg flex items-center gap-1">
+                      <Check className="w-3 h-3" />
+                      Inscrit
+                    </span>
+                  )}
                 </div>
                 
                 <h2 className="text-2xl font-bold text-white mb-3">{selectedEvent.title}</h2>
@@ -488,23 +523,37 @@ export default function EventsPage() {
                   </div>
                 </div>
                 
-                <button
-                  onClick={() => handleRegister(selectedEvent.id)}
-                  disabled={registering === selectedEvent.id || isEventFull(selectedEvent)}
-                  className={`w-full py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 ${
-                    isEventFull(selectedEvent)
-                      ? 'bg-white/10 text-white/60 cursor-not-allowed'
-                      : 'bg-africrea-green-500 hover:bg-africrea-green-600 text-white'
-                  }`}
-                >
-                  {registering === selectedEvent.id ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : isEventFull(selectedEvent) ? (
-                    'Événement complet'
-                  ) : (
-                    "S'inscrire à cet événement"
-                  )}
-                </button>
+                {selectedEvent.isRegistered ? (
+                  <button
+                    onClick={() => handleUnregister(selectedEvent.id)}
+                    disabled={registering === selectedEvent.id}
+                    className="w-full py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30"
+                  >
+                    {registering === selectedEvent.id ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      "Se désinscrire"
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleRegister(selectedEvent.id)}
+                    disabled={registering === selectedEvent.id || isEventFull(selectedEvent)}
+                    className={`w-full py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 ${
+                      isEventFull(selectedEvent)
+                        ? 'bg-white/10 text-white/60 cursor-not-allowed'
+                        : 'bg-africrea-green-500 hover:bg-africrea-green-600 text-white'
+                    }`}
+                  >
+                    {registering === selectedEvent.id ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : isEventFull(selectedEvent) ? (
+                      'Événement complet'
+                    ) : (
+                      "S'inscrire à cet événement"
+                    )}
+                  </button>
+                )}
               </div>
             </motion.div>
           </motion.div>
