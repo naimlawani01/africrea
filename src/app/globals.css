@@ -1,0 +1,239 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Google Fonts - Playfair Display pour les titres, Source Sans 3 pour le corps */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --font-display: 'Playfair Display', serif;
+  --font-sans: 'Source Sans 3', system-ui, sans-serif;
+  
+  --africrea-green: #27ad65;
+  --africrea-green-dark: #1f8a51;
+  --africrea-gold: #facc17;
+  --africrea-gold-dark: #c8a312;
+  
+  --bg-dark: #0a0a0a;
+  --bg-card: #141414;
+  --bg-card-hover: #1a1a1a;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background patterns */
+.bg-pattern-dots {
+  background-image: radial-gradient(circle, var(--africrea-green) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.bg-pattern-grid {
+  background-image: 
+    linear-gradient(to right, rgba(39, 173, 101, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(39, 173, 101, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Glassmorphism */
+.glass {
+  background: rgba(20, 20, 20, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--africrea-green);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--africrea-green-dark);
+}
+
+/* Text selection */
+::selection {
+  background: var(--africrea-green);
+  color: white;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--africrea-green) 0%, var(--africrea-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effects */
+.glow-green {
+  box-shadow: 0 0 20px rgba(39, 173, 101, 0.3);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px rgba(250, 204, 23, 0.3);
+}
+
+/* Hover card effect */
+.hover-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Button styles */
+.btn-primary {
+  @apply px-6 py-3 bg-africrea-green-500 text-white font-semibold rounded-xl;
+  @apply hover:bg-africrea-green-600 transition-all duration-300;
+  @apply focus:outline-none focus:ring-2 focus:ring-africrea-green-500 focus:ring-offset-2 focus:ring-offset-black;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 bg-africrea-gold-500 text-black font-semibold rounded-xl;
+  @apply hover:bg-africrea-gold-600 transition-all duration-300;
+  @apply focus:outline-none focus:ring-2 focus:ring-africrea-gold-500 focus:ring-offset-2 focus:ring-offset-black;
+}
+
+.btn-ghost {
+  @apply px-6 py-3 bg-transparent text-white font-semibold rounded-xl border border-white/20;
+  @apply hover:bg-white/10 transition-all duration-300;
+}
+
+/* Input styles */
+.input-field {
+  @apply w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white;
+  @apply placeholder:text-white/40 focus:outline-none focus:border-africrea-green-500;
+  @apply transition-all duration-300;
+}
+
+/* Card styles */
+.card {
+  @apply bg-[#141414] border border-white/5 rounded-2xl p-6;
+  @apply hover:border-africrea-green-500/30 transition-all duration-300;
+}
+
+/* Pole badges */
+.badge-graphisme {
+  @apply bg-purple-500/20 text-purple-400 border border-purple-500/30;
+}
+
+.badge-animation {
+  @apply bg-blue-500/20 text-blue-400 border border-blue-500/30;
+}
+
+.badge-audiovisuel {
+  @apply bg-orange-500/20 text-orange-400 border border-orange-500/30;
+}
+
+/* Status badges */
+.status-pending {
+  @apply bg-yellow-500/20 text-yellow-400;
+}
+
+.status-approved {
+  @apply bg-green-500/20 text-green-400;
+}
+
+.status-rejected {
+  @apply bg-red-500/20 text-red-400;
+}
+
+.status-reviewing {
+  @apply bg-blue-500/20 text-blue-400;
+}
+
+/* Animation delays for stagger effects */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* Loading spinner */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-subtle);
+  border-top-color: var(--africrea-green);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Shimmer loading effect */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Page transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Tooltip */
+.tooltip {
+  @apply absolute z-50 px-3 py-2 text-sm bg-gray-900 text-white rounded-lg shadow-lg;
+  @apply opacity-0 invisible transition-all duration-200;
+}
+
+.tooltip-trigger:hover .tooltip {
+  @apply opacity-100 visible;
+}
+

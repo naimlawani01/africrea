@@ -1,0 +1,288 @@
+// Schéma Prisma pour la plateforme Africréa
+// Base de données pour la gestion des étudiants créatifs
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// =====================================
+// UTILISATEURS ET AUTHENTIFICATION
+// =====================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  firstName     String
+  lastName      String
+  avatar        String?
+  role          String    @default("STUDENT") // ADMIN, TRAINER, STUDENT
+  pole          String?   // GRAPHISME, ANIMATION_3D, AUDIOVISUEL
+  bio           String?
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  submissions   Submission[]
+  feedbacks     Feedback[]       @relation("FeedbackAuthor")
+  receivedFeedbacks Feedback[]   @relation("FeedbackRecipient")
+  portfolioItems PortfolioItem[]
+  equipmentReservations EquipmentReservation[]
+  eventRegistrations EventRegistration[]
+  projectParticipations ProjectParticipant[]
+  progressNotes ProgressNote[]
+  createdChallenges Challenge[]  @relation("ChallengeCreator")
+  createdEvents Event[]          @relation("EventCreator")
+  createdVideos Video[]          @relation("VideoUploader")
+  createdProjects Project[]      @relation("ProjectCreator")
+}
+
+// =====================================
+// DÉFIS HEBDOMADAIRES
+// =====================================
+
+model Challenge {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  brief       String    // Brief créatif détaillé
+  pole        String    // GRAPHISME, ANIMATION_3D, AUDIOVISUEL
+  difficulty  String    @default("INTERMEDIATE") // BEGINNER, INTERMEDIATE, ADVANCED, EXPERT
+  deadline    DateTime
+  resources   String?   // URLs ou ressources additionnelles (JSON)
+  thumbnail   String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  creator     User      @relation("ChallengeCreator", fields: [creatorId], references: [id])
+  creatorId   String
+  submissions Submission[]
+}
+
+model Submission {
+  id          String    @id @default(cuid())
+  files       String    // URLs des fichiers (JSON array)
+  description String?
+  status      String    @default("PENDING") // PENDING, REVIEWING, APPROVED, REVISION, REJECTED
+  grade       Int?      // Note sur 100
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  challengeId String
+  student     User      @relation(fields: [studentId], references: [id])
+  studentId   String
+  feedbacks   Feedback[]
+
+  // Ajout au portfolio si validé
+  portfolioItem PortfolioItem?
+}
+
+// =====================================
+// FEEDBACK ET CORRECTIONS
+// =====================================
+
+model Feedback {
+  id          String    @id @default(cuid())
+  content     String    // Commentaire principal
+  tips        String?   // Tips et conseils (JSON array)
+  attachments String?   // Fichiers joints (annotations, etc.)
+  isPublic    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  author      User      @relation("FeedbackAuthor", fields: [authorId], references: [id])
+  authorId    String
+  recipient   User      @relation("FeedbackRecipient", fields: [recipientId], references: [id])
+  recipientId String
+  submission  Submission? @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submissionId String?
+}
+
+// =====================================
+// MODULE CINÉMA & AUDIOVISUEL
+// =====================================
+
+model Video {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  url         String    // URL de la vidéo
+  thumbnail   String?
+  duration    Int?      // Durée en secondes
+  category    String    // FILM_ANALYSIS, TECHNIQUE, TUTORIAL, REFERENCE, STUDENT_WORK
+  analysisGuide String? // Guide d'analyse pour les étudiants
+  isPublic    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  uploader    User      @relation("VideoUploader", fields: [uploaderId], references: [id])
+  uploaderId  String
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  type        String    // FILM_SHOOTING, PHOTO_SHOOT, POST_PRODUCTION, LIVE_EVENT, COMMERCIAL
+  status      String    @default("UPCOMING") // UPCOMING, IN_PROGRESS, COMPLETED, CANCELLED
+  startDate   DateTime
+  endDate     DateTime?
+  location    String?
+  maxParticipants Int?
+  requirements String?  // Prérequis pour participer
+  thumbnail   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  creator     User      @relation("ProjectCreator", fields: [creatorId], references: [id])
+  creatorId   String
+  participants ProjectParticipant[]
+  equipment   ProjectEquipment[]
+}
+
+model ProjectParticipant {
+  id        String   @id @default(cuid())
+  role      String   // Rôle dans le projet
+  status    String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  joinedAt  DateTime @default(now())
+
+  // Relations
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+
+  @@unique([projectId, userId])
+}
+
+// =====================================
+// GESTION DU MATÉRIEL
+// =====================================
+
+model Equipment {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  category    String    // CAMERA, LENS, LIGHTING, AUDIO, GRIP, COMPUTER, SOFTWARE, OTHER
+  serialNumber String?
+  status      String    @default("AVAILABLE") // AVAILABLE, RESERVED, IN_USE, MAINTENANCE, UNAVAILABLE
+  image       String?
+  specifications String? // Spécifications techniques (JSON)
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  reservations EquipmentReservation[]
+  projects    ProjectEquipment[]
+}
+
+model EquipmentReservation {
+  id          String    @id @default(cuid())
+  startDate   DateTime
+  endDate     DateTime
+  purpose     String    // Raison de la réservation
+  status      String    @default("PENDING") // PENDING, APPROVED, REJECTED, ACTIVE, COMPLETED, CANCELLED
+  notes       String?
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  equipmentId String
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+}
+
+model ProjectEquipment {
+  id          String   @id @default(cuid())
+  
+  // Relations
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  equipmentId String
+
+  @@unique([projectId, equipmentId])
+}
+
+// =====================================
+// PORTFOLIO ET PROGRESSION
+// =====================================
+
+model PortfolioItem {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  files       String    // URLs des fichiers (JSON array)
+  category    String    // GRAPHISME, ANIMATION_3D, AUDIOVISUEL
+  tags        String?   // Tags (JSON array)
+  isPublic    Boolean   @default(true)
+  isFeatured  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  submission  Submission? @relation(fields: [submissionId], references: [id])
+  submissionId String?  @unique
+}
+
+model ProgressNote {
+  id          String    @id @default(cuid())
+  note        String
+  type        String    // ACHIEVEMENT, IMPROVEMENT, CONCERN, MASTERCLASS
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  student     User      @relation(fields: [studentId], references: [id])
+  studentId   String
+}
+
+// =====================================
+// ÉVÉNEMENTS ET MASTERCLASS
+// =====================================
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  type        String    // MASTERCLASS, WORKSHOP, STUDIO_SESSION, CONFERENCE, NETWORKING
+  date        DateTime
+  endDate     DateTime?
+  location    String
+  maxAttendees Int?
+  isOnline    Boolean   @default(false)
+  meetingLink String?
+  thumbnail   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  creator     User      @relation("EventCreator", fields: [creatorId], references: [id])
+  creatorId   String
+  registrations EventRegistration[]
+}
+
+model EventRegistration {
+  id          String    @id @default(cuid())
+  status      String    @default("PENDING") // PENDING, CONFIRMED, WAITLIST, CANCELLED, ATTENDED
+  notes       String?
+  registeredAt DateTime @default(now())
+
+  // Relations
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId     String
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+
+  @@unique([eventId, userId])
+}
