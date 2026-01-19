@@ -259,22 +259,22 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Actions */}
-            <div className="mt-6 lg:mt-8 p-4 lg:p-6 bg-africrea-green-50 dark:bg-gradient-to-br dark:from-africrea-green-500/10 dark:to-transparent border border-africrea-green-100 dark:border-africrea-green-500/20 rounded-xl lg:rounded-2xl">
+            <div className="mt-6 lg:mt-8 p-4 lg:p-6 bg-africrea-green-50 dark:bg-[#1a2e1f] border border-africrea-green-200 dark:border-africrea-green-500/30 rounded-xl lg:rounded-2xl">
               <h3 className="text-gray-900 dark:text-white font-semibold mb-3 lg:mb-4">Actions rapides</h3>
               <div className="space-y-2 lg:space-y-3">
                 <Link
                   href="/dashboard/challenges"
-                  className="flex items-center gap-3 p-2.5 lg:p-3 bg-white dark:bg-white/5 rounded-lg lg:rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
+                  className="flex items-center gap-3 p-2.5 lg:p-3 bg-white dark:bg-[#141414] rounded-lg lg:rounded-xl hover:bg-gray-50 dark:hover:bg-[#1a1a1a] border border-gray-100 dark:border-white/10 transition-colors"
                 >
-                  <Trophy className="w-4 h-4 lg:w-5 lg:h-5 text-africrea-green-500 dark:text-africrea-green-400" />
-                  <span className="text-gray-700 dark:text-white/80 text-sm">Voir les nouveaux défis</span>
+                  <Trophy className="w-4 h-4 lg:w-5 lg:h-5 text-africrea-green-500" />
+                  <span className="text-gray-700 dark:text-white text-sm">Voir les nouveaux défis</span>
                 </Link>
                 <Link
                   href="/dashboard/equipment"
-                  className="flex items-center gap-3 p-2.5 lg:p-3 bg-white dark:bg-white/5 rounded-lg lg:rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
+                  className="flex items-center gap-3 p-2.5 lg:p-3 bg-white dark:bg-[#141414] rounded-lg lg:rounded-xl hover:bg-gray-50 dark:hover:bg-[#1a1a1a] border border-gray-100 dark:border-white/10 transition-colors"
                 >
-                  <Calendar className="w-4 h-4 lg:w-5 lg:h-5 text-africrea-gold-500 dark:text-africrea-gold-400" />
-                  <span className="text-gray-700 dark:text-white/80 text-sm">Réserver du matériel</span>
+                  <Calendar className="w-4 h-4 lg:w-5 lg:h-5 text-africrea-gold-500" />
+                  <span className="text-gray-700 dark:text-white text-sm">Réserver du matériel</span>
                 </Link>
               </div>
             </div>

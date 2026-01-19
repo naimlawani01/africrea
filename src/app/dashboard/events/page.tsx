@@ -49,11 +49,11 @@ interface Event {
 }
 
 const typeConfig: Record<string, { label: string; bg: string; text: string; icon: React.ElementType }> = {
-  MASTERCLASS: { label: 'Masterclass', bg: 'bg-purple-500/10', text: 'text-purple-400', icon: Star },
-  WORKSHOP: { label: 'Atelier', bg: 'bg-blue-500/10', text: 'text-blue-400', icon: Wrench },
-  STUDIO_SESSION: { label: 'Session Studio', bg: 'bg-orange-500/10', text: 'text-orange-400', icon: Presentation },
-  CONFERENCE: { label: 'Conférence', bg: 'bg-green-500/10', text: 'text-green-400', icon: Mic },
-  NETWORKING: { label: 'Networking', bg: 'bg-pink-500/10', text: 'text-pink-400', icon: Network },
+  MASTERCLASS: { label: 'Masterclass', bg: 'bg-purple-100 dark:bg-purple-500/10', text: 'text-purple-600 dark:text-purple-400', icon: Star },
+  WORKSHOP: { label: 'Atelier', bg: 'bg-blue-100 dark:bg-blue-500/10', text: 'text-blue-600 dark:text-blue-400', icon: Wrench },
+  STUDIO_SESSION: { label: 'Session Studio', bg: 'bg-orange-100 dark:bg-orange-500/10', text: 'text-orange-600 dark:text-orange-400', icon: Presentation },
+  CONFERENCE: { label: 'Conférence', bg: 'bg-green-100 dark:bg-green-500/10', text: 'text-green-600 dark:text-green-400', icon: Mic },
+  NETWORKING: { label: 'Networking', bg: 'bg-pink-100 dark:bg-pink-500/10', text: 'text-pink-600 dark:text-pink-400', icon: Network },
 }
 
 const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
@@ -102,12 +102,12 @@ export default function EventsPage() {
 
       if (res.ok) {
         setMessage({ type: 'success', text: 'Inscription réussie !' })
-        fetchEvents() // Recharger pour mettre à jour isRegistered
+        fetchEvents()
         setSelectedEvent(null)
       } else {
         setMessage({ type: 'error', text: data.error || 'Erreur lors de l\'inscription' })
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Erreur de connexion' })
     } finally {
       setRegistering(null)
@@ -131,7 +131,7 @@ export default function EventsPage() {
         const data = await res.json()
         setMessage({ type: 'error', text: data.error || 'Erreur' })
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Erreur de connexion' })
     } finally {
       setRegistering(null)
@@ -170,7 +170,6 @@ export default function EventsPage() {
     }
     
     for (let i = 1; i <= daysInMonth; i++) {
-      // Comparer les dates correctement
       const dayEvents = events.filter(e => {
         const eventDate = new Date(e.date)
         return eventDate.getFullYear() === year && 
@@ -204,7 +203,7 @@ export default function EventsPage() {
         subtitle="Masterclass, ateliers et rencontres professionnelles"
       />
       
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         {/* Message */}
         {message && (
           <motion.div
@@ -212,8 +211,8 @@ export default function EventsPage() {
             animate={{ opacity: 1, y: 0 }}
             className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${
               message.type === 'success' 
-                ? 'bg-green-500/10 border border-green-500/30 text-green-400'
-                : 'bg-red-500/10 border border-red-500/30 text-red-400'
+                ? 'bg-green-100 dark:bg-green-500/10 border border-green-300 dark:border-green-500/30 text-green-700 dark:text-green-400'
+                : 'bg-red-100 dark:bg-red-500/10 border border-red-300 dark:border-red-500/30 text-red-700 dark:text-red-400'
             }`}
           >
             {message.type === 'success' ? <Check className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
@@ -225,12 +224,14 @@ export default function EventsPage() {
         )}
 
         {/* View Toggle */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex bg-white/5 rounded-xl p-1">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div className="flex bg-gray-100 dark:bg-white/5 rounded-xl p-1">
             <button
               onClick={() => setViewMode('list')}
               className={`px-5 py-2.5 rounded-lg font-medium transition-colors ${
-                viewMode === 'list' ? 'bg-africrea-green-500 text-white' : 'text-white/60 hover:text-white'
+                viewMode === 'list' 
+                  ? 'bg-africrea-green-500 text-white' 
+                  : 'text-gray-600 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
               Liste
@@ -238,17 +239,19 @@ export default function EventsPage() {
             <button
               onClick={() => setViewMode('calendar')}
               className={`px-5 py-2.5 rounded-lg font-medium transition-colors ${
-                viewMode === 'calendar' ? 'bg-africrea-green-500 text-white' : 'text-white/60 hover:text-white'
+                viewMode === 'calendar' 
+                  ? 'bg-africrea-green-500 text-white' 
+                  : 'text-gray-600 dark:text-white/60 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
               Calendrier
             </button>
           </div>
 
-          <div className="flex items-center gap-4 text-white/50 text-sm">
+          <div className="flex items-center gap-4 text-gray-500 dark:text-white/50 text-sm">
             <span>{events.length} événement(s)</span>
             {registeredCount > 0 && (
-              <span className="flex items-center gap-1 text-africrea-green-400">
+              <span className="flex items-center gap-1 text-africrea-green-600 dark:text-africrea-green-400">
                 <UserCheck className="w-4 h-4" />
                 {registeredCount} inscription(s)
               </span>
@@ -258,11 +261,11 @@ export default function EventsPage() {
 
         {viewMode === 'list' ? (
           /* List View */
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {events.length === 0 ? (
               <div className="text-center py-16">
-                <Calendar className="w-16 h-16 text-white/20 mx-auto mb-4" />
-                <h3 className="text-white/60 text-lg">Aucun événement à venir</h3>
+                <Calendar className="w-16 h-16 text-gray-300 dark:text-white/20 mx-auto mb-4" />
+                <h3 className="text-gray-500 dark:text-white/60 text-lg">Aucun événement à venir</h3>
               </div>
             ) : (
               events.map((event) => {
@@ -277,46 +280,48 @@ export default function EventsPage() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     whileHover={{ x: 4 }}
-                    className={`flex gap-6 p-6 bg-[#141414] border rounded-2xl hover:border-africrea-green-500/30 transition-all cursor-pointer ${
-                      event.isRegistered ? 'border-africrea-green-500/50' : 'border-white/5'
+                    className={`flex flex-col md:flex-row gap-4 md:gap-6 p-4 md:p-6 bg-white dark:bg-[#141414] border rounded-2xl hover:border-africrea-green-500/30 transition-all cursor-pointer ${
+                      event.isRegistered 
+                        ? 'border-africrea-green-500/50' 
+                        : 'border-gray-200 dark:border-white/5'
                     }`}
                     onClick={() => setSelectedEvent(event)}
                   >
                     {/* Date Badge */}
-                    <div className="flex-shrink-0 w-20 h-20 rounded-2xl bg-africrea-green-500/10 flex flex-col items-center justify-center">
-                      <span className="text-africrea-green-400 text-sm font-medium">
+                    <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-africrea-green-50 dark:bg-africrea-green-500/10 flex flex-col items-center justify-center">
+                      <span className="text-africrea-green-600 dark:text-africrea-green-400 text-xs md:text-sm font-medium">
                         {months[new Date(event.date).getMonth()].slice(0, 3)}
                       </span>
-                      <span className="text-white text-2xl font-bold">
+                      <span className="text-gray-900 dark:text-white text-xl md:text-2xl font-bold">
                         {new Date(event.date).getDate()}
                       </span>
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-2">
                         <span className={`px-3 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 ${config.bg} ${config.text}`}>
                           <TypeIcon className="w-3.5 h-3.5" />
                           {config.label}
                         </span>
                         {event.isOnline && (
-                          <span className="px-2 py-1 bg-blue-500/10 text-blue-400 text-xs rounded-lg flex items-center gap-1">
+                          <span className="px-2 py-1 bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs rounded-lg flex items-center gap-1">
                             <Video className="w-3 h-3" />
                             En ligne
                           </span>
                         )}
                         {event.isRegistered && (
-                          <span className="px-2 py-1 bg-africrea-green-500/10 text-africrea-green-400 text-xs rounded-lg flex items-center gap-1">
+                          <span className="px-2 py-1 bg-africrea-green-100 dark:bg-africrea-green-500/10 text-africrea-green-600 dark:text-africrea-green-400 text-xs rounded-lg flex items-center gap-1">
                             <Check className="w-3 h-3" />
                             Inscrit
                           </span>
                         )}
                       </div>
                       
-                      <h3 className="text-white font-semibold text-lg mb-2">{event.title}</h3>
-                      <p className="text-white/50 text-sm mb-4 line-clamp-2">{event.description}</p>
+                      <h3 className="text-gray-900 dark:text-white font-semibold text-base md:text-lg mb-2">{event.title}</h3>
+                      <p className="text-gray-500 dark:text-white/50 text-sm mb-4 line-clamp-2">{event.description}</p>
                       
-                      <div className="flex items-center gap-6 text-white/40 text-sm">
+                      <div className="flex flex-wrap items-center gap-3 md:gap-6 text-gray-400 dark:text-white/40 text-sm">
                         <span className="flex items-center gap-1.5">
                           <Clock className="w-4 h-4" />
                           {new Date(event.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
@@ -333,7 +338,7 @@ export default function EventsPage() {
                     </div>
 
                     {/* Action */}
-                    <div className="flex-shrink-0 flex items-center">
+                    <div className="flex-shrink-0 flex items-center mt-4 md:mt-0">
                       {event.isRegistered ? (
                         <button 
                           onClick={(e) => {
@@ -341,7 +346,7 @@ export default function EventsPage() {
                             handleUnregister(event.id)
                           }}
                           disabled={registering === event.id}
-                          className="px-5 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl font-medium transition-colors flex items-center gap-2"
+                          className="w-full md:w-auto px-5 py-2.5 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
                         >
                           {registering === event.id ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -350,7 +355,7 @@ export default function EventsPage() {
                           )}
                         </button>
                       ) : isFull ? (
-                        <button className="px-5 py-2.5 bg-white/10 text-white/60 rounded-xl font-medium cursor-not-allowed">
+                        <button className="w-full md:w-auto px-5 py-2.5 bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 rounded-xl font-medium cursor-not-allowed">
                           Complet
                         </button>
                       ) : (
@@ -360,7 +365,7 @@ export default function EventsPage() {
                             handleRegister(event.id)
                           }}
                           disabled={registering === event.id}
-                          className="px-5 py-2.5 bg-africrea-green-500 hover:bg-africrea-green-600 disabled:bg-africrea-green-500/50 text-white rounded-xl font-medium transition-colors flex items-center gap-2"
+                          className="w-full md:w-auto px-5 py-2.5 bg-africrea-green-500 hover:bg-africrea-green-600 disabled:bg-africrea-green-500/50 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
                         >
                           {registering === event.id ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -377,31 +382,31 @@ export default function EventsPage() {
           </div>
         ) : (
           /* Calendar View */
-          <div className="bg-[#141414] border border-white/5 rounded-2xl p-6">
+          <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/5 rounded-2xl p-4 md:p-6">
             {/* Calendar Header */}
             <div className="flex items-center justify-between mb-6">
               <button
                 onClick={goToPreviousMonth}
-                className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-white/60 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <h3 className="text-xl font-bold text-white">
+              <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white">
                 {months[currentDate.getMonth()]} {currentDate.getFullYear()}
               </h3>
               <button
                 onClick={goToNextMonth}
-                className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-white/60 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
 
             {/* Calendar Grid */}
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1 md:gap-2">
               {/* Day Headers */}
               {days.map((day) => (
-                <div key={day} className="text-center text-white/40 text-sm py-2">
+                <div key={day} className="text-center text-gray-500 dark:text-white/40 text-xs md:text-sm py-2">
                   {day}
                 </div>
               ))}
@@ -410,15 +415,15 @@ export default function EventsPage() {
               {calendarDays.map((dayData, index) => (
                 <div
                   key={index}
-                  className={`min-h-24 p-2 rounded-xl border transition-colors ${
+                  className={`min-h-16 md:min-h-24 p-1 md:p-2 rounded-lg md:rounded-xl border transition-colors ${
                     dayData.isCurrentMonth
-                      ? 'bg-white/5 border-white/5 hover:border-africrea-green-500/30'
+                      ? 'bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/5 hover:border-africrea-green-500/30'
                       : 'bg-transparent border-transparent'
                   }`}
                 >
                   {dayData.day && (
                     <>
-                      <span className="text-white/60 text-sm">{dayData.day}</span>
+                      <span className="text-gray-600 dark:text-white/60 text-xs md:text-sm">{dayData.day}</span>
                       {dayData.events && dayData.events.length > 0 && (
                         <div className="mt-1 space-y-1">
                           {dayData.events.slice(0, 2).map((event) => {
@@ -427,7 +432,7 @@ export default function EventsPage() {
                               <div
                                 key={event.id}
                                 onClick={() => setSelectedEvent(event)}
-                                className={`text-xs px-2 py-1 rounded ${config.bg} ${config.text} truncate cursor-pointer hover:opacity-80 ${
+                                className={`text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded ${config.bg} ${config.text} truncate cursor-pointer hover:opacity-80 ${
                                   event.isRegistered ? 'ring-1 ring-africrea-green-500' : ''
                                 }`}
                               >
@@ -436,8 +441,8 @@ export default function EventsPage() {
                             )
                           })}
                           {dayData.events.length > 2 && (
-                            <div className="text-xs text-white/40">
-                              +{dayData.events.length - 2} autres
+                            <div className="text-[10px] md:text-xs text-gray-400 dark:text-white/40">
+                              +{dayData.events.length - 2}
                             </div>
                           )}
                         </div>
@@ -458,14 +463,14 @@ export default function EventsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/80 backdrop-blur-sm"
             onClick={() => setSelectedEvent(null)}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-lg bg-[#141414] border border-white/10 rounded-3xl overflow-hidden"
+              className="w-full max-w-lg bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl overflow-hidden max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {selectedEvent.thumbnail && (
@@ -477,48 +482,48 @@ export default function EventsPage() {
               )}
               
               <div className="p-6">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex flex-wrap items-center gap-3 mb-4">
                   <span className={`px-3 py-1 rounded-lg text-xs font-medium ${(typeConfig[selectedEvent.type] || typeConfig.WORKSHOP).bg} ${(typeConfig[selectedEvent.type] || typeConfig.WORKSHOP).text}`}>
                     {(typeConfig[selectedEvent.type] || typeConfig.WORKSHOP).label}
                   </span>
                   {selectedEvent.isOnline && (
-                    <span className="px-2 py-1 bg-blue-500/10 text-blue-400 text-xs rounded-lg flex items-center gap-1">
+                    <span className="px-2 py-1 bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs rounded-lg flex items-center gap-1">
                       <Video className="w-3 h-3" />
                       En ligne
                     </span>
                   )}
                   {selectedEvent.isRegistered && (
-                    <span className="px-2 py-1 bg-africrea-green-500/10 text-africrea-green-400 text-xs rounded-lg flex items-center gap-1">
+                    <span className="px-2 py-1 bg-africrea-green-100 dark:bg-africrea-green-500/10 text-africrea-green-600 dark:text-africrea-green-400 text-xs rounded-lg flex items-center gap-1">
                       <Check className="w-3 h-3" />
                       Inscrit
                     </span>
                   )}
                 </div>
                 
-                <h2 className="text-2xl font-bold text-white mb-3">{selectedEvent.title}</h2>
-                <p className="text-white/60 mb-6">{selectedEvent.description}</p>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-3">{selectedEvent.title}</h2>
+                <p className="text-gray-600 dark:text-white/60 mb-6">{selectedEvent.description}</p>
                 
-                <div className="mb-4 p-3 bg-africrea-gold-500/10 border border-africrea-gold-500/20 rounded-xl">
-                  <span className="text-africrea-gold-400 text-sm">
+                <div className="mb-4 p-3 bg-africrea-gold-50 dark:bg-africrea-gold-500/10 border border-africrea-gold-200 dark:border-africrea-gold-500/20 rounded-xl">
+                  <span className="text-africrea-gold-700 dark:text-africrea-gold-400 text-sm">
                     Organisé par : {selectedEvent.creator.firstName} {selectedEvent.creator.lastName}
                   </span>
                 </div>
                 
-                <div className="space-y-3 mb-6 text-white/60">
+                <div className="space-y-3 mb-6 text-gray-600 dark:text-white/60">
                   <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-africrea-green-400" />
+                    <Calendar className="w-5 h-5 text-africrea-green-500 dark:text-africrea-green-400" />
                     <span>{new Date(selectedEvent.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Clock className="w-5 h-5 text-africrea-green-400" />
+                    <Clock className="w-5 h-5 text-africrea-green-500 dark:text-africrea-green-400" />
                     <span>{new Date(selectedEvent.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <MapPin className="w-5 h-5 text-africrea-green-400" />
+                    <MapPin className="w-5 h-5 text-africrea-green-500 dark:text-africrea-green-400" />
                     <span>{selectedEvent.location}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-africrea-green-400" />
+                    <Users className="w-5 h-5 text-africrea-green-500 dark:text-africrea-green-400" />
                     <span>{getRegistrationCount(selectedEvent)}{selectedEvent.maxAttendees ? `/${selectedEvent.maxAttendees}` : ''} participants</span>
                   </div>
                 </div>
@@ -527,7 +532,7 @@ export default function EventsPage() {
                   <button
                     onClick={() => handleUnregister(selectedEvent.id)}
                     disabled={registering === selectedEvent.id}
-                    className="w-full py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30"
+                    className="w-full py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30"
                   >
                     {registering === selectedEvent.id ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -541,7 +546,7 @@ export default function EventsPage() {
                     disabled={registering === selectedEvent.id || isEventFull(selectedEvent)}
                     className={`w-full py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 ${
                       isEventFull(selectedEvent)
-                        ? 'bg-white/10 text-white/60 cursor-not-allowed'
+                        ? 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 cursor-not-allowed'
                         : 'bg-africrea-green-500 hover:bg-africrea-green-600 text-white'
                     }`}
                   >

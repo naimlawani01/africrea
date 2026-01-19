@@ -7,7 +7,6 @@ import {
   Trophy, 
   Clock, 
   Filter, 
-  Plus,
   Palette,
   Box,
   Film,
@@ -65,16 +64,16 @@ const poleIcons: Record<string, React.ElementType> = {
 }
 
 const poleColors: Record<string, { bg: string; text: string; border: string }> = {
-  GRAPHISME: { bg: 'bg-purple-500/10', text: 'text-purple-400', border: 'border-purple-500/30' },
-  ANIMATION_3D: { bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/30' },
-  AUDIOVISUEL: { bg: 'bg-orange-500/10', text: 'text-orange-400', border: 'border-orange-500/30' },
+  GRAPHISME: { bg: 'bg-purple-100 dark:bg-purple-500/10', text: 'text-purple-600 dark:text-purple-400', border: 'border-purple-300 dark:border-purple-500/30' },
+  ANIMATION_3D: { bg: 'bg-blue-100 dark:bg-blue-500/10', text: 'text-blue-600 dark:text-blue-400', border: 'border-blue-300 dark:border-blue-500/30' },
+  AUDIOVISUEL: { bg: 'bg-orange-100 dark:bg-orange-500/10', text: 'text-orange-600 dark:text-orange-400', border: 'border-orange-300 dark:border-orange-500/30' },
 }
 
 const difficultyColors: Record<string, { bg: string; text: string }> = {
-  BEGINNER: { bg: 'bg-green-500/10', text: 'text-green-400' },
-  INTERMEDIATE: { bg: 'bg-yellow-500/10', text: 'text-yellow-400' },
-  ADVANCED: { bg: 'bg-orange-500/10', text: 'text-orange-400' },
-  EXPERT: { bg: 'bg-red-500/10', text: 'text-red-400' },
+  BEGINNER: { bg: 'bg-green-100 dark:bg-green-500/10', text: 'text-green-600 dark:text-green-400' },
+  INTERMEDIATE: { bg: 'bg-yellow-100 dark:bg-yellow-500/10', text: 'text-yellow-600 dark:text-yellow-400' },
+  ADVANCED: { bg: 'bg-orange-100 dark:bg-orange-500/10', text: 'text-orange-600 dark:text-orange-400' },
+  EXPERT: { bg: 'bg-red-100 dark:bg-red-500/10', text: 'text-red-600 dark:text-red-400' },
 }
 
 const difficultyLabels: Record<string, string> = {
@@ -85,11 +84,11 @@ const difficultyLabels: Record<string, string> = {
 }
 
 const statusColors: Record<string, { bg: string; text: string }> = {
-  PENDING: { bg: 'bg-gray-500/10', text: 'text-gray-400' },
-  REVIEWING: { bg: 'bg-blue-500/10', text: 'text-blue-400' },
-  APPROVED: { bg: 'bg-green-500/10', text: 'text-green-400' },
-  REVISION: { bg: 'bg-yellow-500/10', text: 'text-yellow-400' },
-  REJECTED: { bg: 'bg-red-500/10', text: 'text-red-400' },
+  PENDING: { bg: 'bg-gray-100 dark:bg-gray-500/10', text: 'text-gray-600 dark:text-gray-400' },
+  REVIEWING: { bg: 'bg-blue-100 dark:bg-blue-500/10', text: 'text-blue-600 dark:text-blue-400' },
+  APPROVED: { bg: 'bg-green-100 dark:bg-green-500/10', text: 'text-green-600 dark:text-green-400' },
+  REVISION: { bg: 'bg-yellow-100 dark:bg-yellow-500/10', text: 'text-yellow-600 dark:text-yellow-400' },
+  REJECTED: { bg: 'bg-red-100 dark:bg-red-500/10', text: 'text-red-600 dark:text-red-400' },
 }
 
 const statusLabels: Record<string, string> = {
@@ -163,7 +162,7 @@ export default function ChallengesPage() {
       } else {
         setMessage({ type: 'error', text: data.error || 'Erreur lors de la soumission' })
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Erreur de connexion' })
     } finally {
       setSubmitting(false)
@@ -198,7 +197,7 @@ export default function ChallengesPage() {
         subtitle="Relevez des défis et améliorez vos compétences"
       />
       
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         {/* Message */}
         {message && (
           <motion.div
@@ -206,8 +205,8 @@ export default function ChallengesPage() {
             animate={{ opacity: 1, y: 0 }}
             className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${
               message.type === 'success' 
-                ? 'bg-green-500/10 border border-green-500/30 text-green-400'
-                : 'bg-red-500/10 border border-red-500/30 text-red-400'
+                ? 'bg-green-100 dark:bg-green-500/10 border border-green-300 dark:border-green-500/30 text-green-700 dark:text-green-400'
+                : 'bg-red-100 dark:bg-red-500/10 border border-red-300 dark:border-red-500/30 text-red-700 dark:text-red-400'
             }`}
           >
             {message.type === 'success' ? <Check className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
@@ -219,24 +218,24 @@ export default function ChallengesPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex flex-wrap items-center gap-4 mb-8">
           <button
             onClick={() => setActiveTab('available')}
-            className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+            className={`px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-medium transition-all duration-300 ${
               activeTab === 'available'
                 ? 'bg-africrea-green-500 text-white'
-                : 'bg-white/5 text-white/60 hover:bg-white/10'
+                : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/10'
             }`}
           >
             <Trophy className="w-5 h-5 inline-block mr-2" />
-            Défis disponibles ({challenges.length})
+            Défis ({challenges.length})
           </button>
           <button
             onClick={() => setActiveTab('submissions')}
-            className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+            className={`px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-medium transition-all duration-300 ${
               activeTab === 'submissions'
                 ? 'bg-africrea-green-500 text-white'
-                : 'bg-white/5 text-white/60 hover:bg-white/10'
+                : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/10'
             }`}
           >
             <Upload className="w-5 h-5 inline-block mr-2" />
@@ -247,10 +246,10 @@ export default function ChallengesPage() {
         {activeTab === 'available' ? (
           <>
             {/* Filters */}
-            <div className="flex items-center gap-4 mb-8">
-              <div className="flex items-center gap-2 text-white/60">
+            <div className="flex flex-wrap items-center gap-4 mb-8">
+              <div className="flex items-center gap-2 text-gray-500 dark:text-white/60">
                 <Filter className="w-5 h-5" />
-                <span>Filtrer par pôle:</span>
+                <span>Filtrer:</span>
               </div>
               <div className="flex gap-2 flex-wrap">
                 <button
@@ -258,7 +257,7 @@ export default function ChallengesPage() {
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                     !selectedPole
                       ? 'bg-africrea-green-500 text-white'
-                      : 'bg-white/5 text-white/60 hover:bg-white/10'
+                      : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/10'
                   }`}
                 >
                   Tous
@@ -272,7 +271,7 @@ export default function ChallengesPage() {
                       className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-300 ${
                         selectedPole === pole
                           ? `${colors.bg} ${colors.text} border ${colors.border}`
-                          : 'bg-white/5 text-white/60 hover:bg-white/10'
+                          : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/10'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -286,8 +285,8 @@ export default function ChallengesPage() {
             {/* Challenges Grid */}
             {filteredChallenges.length === 0 ? (
               <div className="text-center py-16">
-                <Trophy className="w-16 h-16 text-white/20 mx-auto mb-4" />
-                <h3 className="text-white/60 text-lg">Aucun défi disponible</h3>
+                <Trophy className="w-16 h-16 text-gray-300 dark:text-white/20 mx-auto mb-4" />
+                <h3 className="text-gray-500 dark:text-white/60 text-lg">Aucun défi disponible</h3>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -303,7 +302,7 @@ export default function ChallengesPage() {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       whileHover={{ y: -4 }}
-                      className="bg-[#141414] border border-white/5 rounded-2xl overflow-hidden hover:border-africrea-green-500/30 transition-all duration-300 cursor-pointer group"
+                      className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/5 rounded-2xl overflow-hidden hover:border-africrea-green-500/30 transition-all duration-300 cursor-pointer group"
                       onClick={() => setSelectedChallenge(challenge)}
                     >
                       {/* Thumbnail */}
@@ -316,7 +315,7 @@ export default function ChallengesPage() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <Icon className="w-16 h-16 text-white/20" />
+                            <Icon className="w-16 h-16 text-gray-300 dark:text-white/20" />
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -328,10 +327,10 @@ export default function ChallengesPage() {
 
                       {/* Content */}
                       <div className="p-5">
-                        <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-africrea-green-400 transition-colors">
+                        <h3 className="text-gray-900 dark:text-white font-semibold text-lg mb-2 group-hover:text-africrea-green-500 dark:group-hover:text-africrea-green-400 transition-colors">
                           {challenge.title}
                         </h3>
-                        <p className="text-white/50 text-sm mb-4 line-clamp-2">
+                        <p className="text-gray-500 dark:text-white/50 text-sm mb-4 line-clamp-2">
                           {challenge.description}
                         </p>
                         
@@ -339,13 +338,13 @@ export default function ChallengesPage() {
                           <span className={`px-3 py-1 rounded-lg text-xs font-medium ${diffColor.bg} ${diffColor.text}`}>
                             {difficultyLabels[challenge.difficulty] || challenge.difficulty}
                           </span>
-                          <div className="flex items-center gap-2 text-white/40 text-sm">
+                          <div className="flex items-center gap-2 text-gray-400 dark:text-white/40 text-sm">
                             <Clock className="w-4 h-4" />
                             {getDaysRemaining(challenge.deadline)}
                           </div>
                         </div>
                         
-                        <div className="mt-3 text-white/30 text-sm">
+                        <div className="mt-3 text-gray-400 dark:text-white/30 text-sm">
                           {challenge._count?.submissions || 0} soumission(s)
                         </div>
                       </div>
@@ -360,9 +359,9 @@ export default function ChallengesPage() {
           <div className="space-y-4">
             {mySubmissions.length === 0 ? (
               <div className="text-center py-16">
-                <Upload className="w-16 h-16 text-white/20 mx-auto mb-4" />
-                <h3 className="text-white/60 text-lg">Aucune soumission</h3>
-                <p className="text-white/40 mt-2">Participez à un défi pour voir vos travaux ici</p>
+                <Upload className="w-16 h-16 text-gray-300 dark:text-white/20 mx-auto mb-4" />
+                <h3 className="text-gray-500 dark:text-white/60 text-lg">Aucune soumission</h3>
+                <p className="text-gray-400 dark:text-white/40 mt-2">Participez à un défi pour voir vos travaux ici</p>
               </div>
             ) : (
               mySubmissions.map((submission) => {
@@ -372,35 +371,35 @@ export default function ChallengesPage() {
                     key={submission.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-6 bg-[#141414] border border-white/5 rounded-2xl hover:border-africrea-green-500/30 transition-all duration-300"
+                    className="p-4 md:p-6 bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/5 rounded-2xl hover:border-africrea-green-500/30 transition-all duration-300"
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-white font-semibold text-lg">{submission.challenge.title}</h3>
-                      <span className={`px-3 py-1.5 rounded-lg text-sm font-medium ${statusColor.bg} ${statusColor.text}`}>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4">
+                      <h3 className="text-gray-900 dark:text-white font-semibold text-lg">{submission.challenge.title}</h3>
+                      <span className={`px-3 py-1.5 rounded-lg text-sm font-medium w-fit ${statusColor.bg} ${statusColor.text}`}>
                         {statusLabels[submission.status] || submission.status}
                       </span>
                     </div>
                     
-                    <div className="flex items-center gap-6">
-                      <div className="text-white/40 text-sm">
+                    <div className="flex flex-wrap items-center gap-4 md:gap-6">
+                      <div className="text-gray-500 dark:text-white/40 text-sm">
                         Soumis le {new Date(submission.submittedAt).toLocaleDateString('fr-FR')}
                       </div>
                       
                       {submission.grade !== null && (
                         <div className="flex items-center gap-2">
                           <Star className="w-5 h-5 text-africrea-gold-500" />
-                          <span className="text-white font-bold text-xl">{submission.grade}/100</span>
+                          <span className="text-gray-900 dark:text-white font-bold text-xl">{submission.grade}/100</span>
                         </div>
                       )}
                     </div>
                     
                     {submission.feedback && submission.feedback.length > 0 && (
-                      <div className="mt-4 p-4 bg-africrea-green-500/10 border border-africrea-green-500/20 rounded-xl">
-                        <div className="flex items-center gap-2 text-africrea-green-400 mb-2">
+                      <div className="mt-4 p-4 bg-africrea-green-50 dark:bg-africrea-green-500/10 border border-africrea-green-200 dark:border-africrea-green-500/20 rounded-xl">
+                        <div className="flex items-center gap-2 text-africrea-green-600 dark:text-africrea-green-400 mb-2">
                           <MessageSquare className="w-4 h-4" />
                           <span className="font-medium">Feedback de {submission.feedback[0].trainer.firstName}</span>
                         </div>
-                        <p className="text-white/70">{submission.feedback[0].content}</p>
+                        <p className="text-gray-700 dark:text-white/70">{submission.feedback[0].content}</p>
                       </div>
                     )}
                   </motion.div>
@@ -418,14 +417,14 @@ export default function ChallengesPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/80 backdrop-blur-sm"
             onClick={() => setSelectedChallenge(null)}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="w-full max-w-2xl bg-[#141414] border border-white/10 rounded-3xl overflow-hidden"
+              className="w-full max-w-2xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl overflow-hidden max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -438,10 +437,10 @@ export default function ChallengesPage() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Trophy className="w-20 h-20 text-white/20" />
+                    <Trophy className="w-20 h-20 text-gray-300 dark:text-white/20" />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#141414] to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-[#141414] to-transparent" />
                 <button
                   onClick={() => setSelectedChallenge(null)}
                   className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors"
@@ -451,8 +450,8 @@ export default function ChallengesPage() {
               </div>
 
               {/* Content */}
-              <div className="p-8 -mt-8 relative">
-                <div className="flex items-center gap-3 mb-4">
+              <div className="p-6 md:p-8 -mt-8 relative">
+                <div className="flex flex-wrap items-center gap-3 mb-4">
                   <span className={`px-3 py-1 rounded-lg text-xs font-medium ${(poleColors[selectedChallenge.pole] || poleColors.GRAPHISME).bg} ${(poleColors[selectedChallenge.pole] || poleColors.GRAPHISME).text}`}>
                     {selectedChallenge.pole.replace('_', ' ')}
                   </span>
@@ -461,14 +460,14 @@ export default function ChallengesPage() {
                   </span>
                 </div>
                 
-                <h2 className="text-2xl font-bold text-white mb-4">{selectedChallenge.title}</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-4">{selectedChallenge.title}</h2>
                 
                 <div className="mb-6">
-                  <h4 className="text-white/60 text-sm font-medium mb-2">Brief créatif</h4>
-                  <p className="text-white/80 leading-relaxed">{selectedChallenge.brief || selectedChallenge.description}</p>
+                  <h4 className="text-gray-500 dark:text-white/60 text-sm font-medium mb-2">Brief créatif</h4>
+                  <p className="text-gray-700 dark:text-white/80 leading-relaxed">{selectedChallenge.brief || selectedChallenge.description}</p>
                 </div>
                 
-                <div className="flex items-center gap-6 mb-8 text-white/50">
+                <div className="flex flex-wrap items-center gap-4 md:gap-6 mb-8 text-gray-500 dark:text-white/50">
                   <div className="flex items-center gap-2">
                     <Clock className="w-5 h-5" />
                     <span>Deadline: {selectedChallenge.deadline ? new Date(selectedChallenge.deadline).toLocaleDateString('fr-FR') : 'Pas de deadline'}</span>
@@ -499,43 +498,43 @@ export default function ChallengesPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/80 backdrop-blur-sm"
             onClick={() => setShowSubmitModal(false)}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-lg bg-[#141414] border border-white/10 rounded-3xl p-8"
+              className="w-full max-w-lg bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-6 md:p-8"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-2xl font-bold text-white mb-2">Soumettre mon travail</h2>
-              <p className="text-white/50 mb-6">Pour : {selectedChallenge.title}</p>
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">Soumettre mon travail</h2>
+              <p className="text-gray-500 dark:text-white/50 mb-6">Pour : {selectedChallenge.title}</p>
               
               <div className="space-y-6">
                 {/* File Upload */}
                 <div>
-                  <label className="block text-white/70 text-sm font-medium mb-2">
+                  <label className="block text-gray-700 dark:text-white/70 text-sm font-medium mb-2">
                     Fichiers
                   </label>
-                  <div className="border-2 border-dashed border-white/20 rounded-xl p-8 text-center hover:border-africrea-green-500/50 transition-colors cursor-pointer">
-                    <Upload className="w-10 h-10 text-white/40 mx-auto mb-3" />
-                    <p className="text-white/60">Glissez vos fichiers ici</p>
-                    <p className="text-white/40 text-sm mt-1">ou cliquez pour parcourir</p>
-                    <p className="text-white/30 text-xs mt-3">PNG, JPG, PDF, MP4, ZIP jusqu&apos;à 100MB</p>
+                  <div className="border-2 border-dashed border-gray-300 dark:border-white/20 rounded-xl p-8 text-center hover:border-africrea-green-500/50 transition-colors cursor-pointer">
+                    <Upload className="w-10 h-10 text-gray-400 dark:text-white/40 mx-auto mb-3" />
+                    <p className="text-gray-600 dark:text-white/60">Glissez vos fichiers ici</p>
+                    <p className="text-gray-400 dark:text-white/40 text-sm mt-1">ou cliquez pour parcourir</p>
+                    <p className="text-gray-300 dark:text-white/30 text-xs mt-3">PNG, JPG, PDF, MP4, ZIP jusqu&apos;à 100MB</p>
                   </div>
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="block text-white/70 text-sm font-medium mb-2">
+                  <label className="block text-gray-700 dark:text-white/70 text-sm font-medium mb-2">
                     Description (optionnel)
                   </label>
                   <textarea
                     rows={3}
                     value={submitDescription}
                     onChange={(e) => setSubmitDescription(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-africrea-green-500 resize-none"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/40 focus:outline-none focus:border-africrea-green-500 resize-none"
                     placeholder="Décrivez votre travail, les choix créatifs..."
                   />
                 </div>
@@ -546,7 +545,7 @@ export default function ChallengesPage() {
                       setShowSubmitModal(false)
                       setSubmitDescription('')
                     }}
-                    className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl transition-colors"
+                    className="flex-1 py-3 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-700 dark:text-white font-medium rounded-xl transition-colors"
                   >
                     Annuler
                   </button>
