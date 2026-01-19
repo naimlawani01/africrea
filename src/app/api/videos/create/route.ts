@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { title, description, videoUrl, thumbnail, duration, category, analysisGuide, poleId } = body
+    const { title, description, videoUrl, thumbnail, duration, category, analysisGuide } = body
 
     if (!title || !description || !videoUrl || !category) {
       return NextResponse.json(
@@ -29,13 +29,12 @@ export async function POST(req: Request) {
       data: {
         title,
         description,
-        videoUrl,
-        thumbnail,
-        duration: duration ? parseInt(duration) : null,
+        url: videoUrl,
         category,
-        analysisGuide,
-        uploadedById: session.user.id,
-        ...(poleId && { poleId })
+        ...(thumbnail && { thumbnail }),
+        ...(duration && { duration: parseInt(duration) }),
+        ...(analysisGuide && { analysisGuide }),
+        uploaderId: session.user.id
       }
     })
 
@@ -48,4 +47,3 @@ export async function POST(req: Request) {
     )
   }
 }
-

@@ -32,10 +32,9 @@ export async function POST(req: Request) {
         brief: brief || description,
         pole,
         difficulty,
-        ...(deadline && { deadline: new Date(deadline) }),
+        deadline: deadline ? new Date(deadline) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Par défaut 1 semaine
         ...(thumbnail && { thumbnail }),
-        createdById: session.user.id,
-        status: 'ACTIVE'
+        creatorId: session.user.id
       }
     })
 
@@ -48,4 +47,3 @@ export async function POST(req: Request) {
     )
   }
 }
-

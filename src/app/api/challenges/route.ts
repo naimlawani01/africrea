@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 
 // GET - Récupérer tous les défis
@@ -15,8 +13,8 @@ export async function GET(req: Request) {
         creator: {
           select: { firstName: true, lastName: true }
         },
-        submissions: {
-          select: { id: true, status: true }
+        _count: {
+          select: { submissions: true }
         }
       },
       orderBy: { deadline: 'asc' }
@@ -31,4 +29,3 @@ export async function GET(req: Request) {
     )
   }
 }
-

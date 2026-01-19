@@ -16,9 +16,9 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { title, description, type, startDate, endDate, location, maxParticipants, requirements, thumbnail, roles } = body
+    const { title, description, type, startDate, endDate, location, maxParticipants, requirements, thumbnail } = body
 
-    if (!title || !description || !type || !startDate || !location) {
+    if (!title || !description || !type || !startDate) {
       return NextResponse.json(
         { error: 'Champs requis manquants' },
         { status: 400 }
@@ -32,13 +32,12 @@ export async function POST(req: Request) {
         type,
         status: 'UPCOMING',
         startDate: new Date(startDate),
-        endDate: endDate ? new Date(endDate) : null,
-        location,
-        maxParticipants: maxParticipants ? parseInt(maxParticipants) : null,
-        requirements,
-        thumbnail,
-        roles: roles || [],
-        createdById: session.user.id
+        ...(endDate && { endDate: new Date(endDate) }),
+        ...(location && { location }),
+        ...(maxParticipants && { maxParticipants: parseInt(maxParticipants) }),
+        ...(requirements && { requirements }),
+        ...(thumbnail && { thumbnail }),
+        creatorId: session.user.id
       }
     })
 
@@ -51,4 +50,3 @@ export async function POST(req: Request) {
     )
   }
 }
-
