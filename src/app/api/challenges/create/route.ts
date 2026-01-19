@@ -32,8 +32,8 @@ export async function POST(req: Request) {
         brief: brief || description,
         pole,
         difficulty,
-        deadline: deadline ? new Date(deadline) : null,
-        thumbnail,
+        ...(deadline && { deadline: new Date(deadline) }),
+        ...(thumbnail && { thumbnail }),
         createdById: session.user.id,
         status: 'ACTIVE'
       }
