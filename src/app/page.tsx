@@ -304,32 +304,38 @@ export default function HomePage() {
           {/* Features */}
           <motion.div variants={itemVariants} className="mt-16 md:mt-24">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-              <div className="p-6 md:p-8 bg-africrea-green-50 dark:bg-gradient-to-br dark:from-africrea-green-500/10 dark:to-transparent border border-africrea-green-200 dark:border-africrea-green-500/20 rounded-2xl md:rounded-3xl">
+              <div className="p-6 md:p-8 bg-white dark:bg-[#0f1f14] border-2 border-africrea-green-200 dark:border-africrea-green-500/30 rounded-2xl md:rounded-3xl shadow-lg shadow-africrea-green-500/5">
+                <div className="w-12 h-12 rounded-xl bg-africrea-green-500 flex items-center justify-center mb-4">
+                  <Trophy className="w-6 h-6 text-white" />
+                </div>
                 <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-3 md:mb-4">Défis Hebdomadaires</h3>
-                <p className="text-gray-600 dark:text-white/60 mb-4 md:mb-6 text-sm md:text-base">
+                <p className="text-gray-600 dark:text-white/70 mb-4 md:mb-6 text-sm md:text-base">
                   Relevez des défis techniques chaque semaine, recevez des feedbacks personnalisés 
                   de nos experts et améliorez vos compétences progressivement.
                 </p>
                 <ul className="space-y-2 md:space-y-3">
                   {['Briefings créatifs détaillés', 'Corrections interactives', 'Tips & astuces des pros'].map((item) => (
                     <li key={item} className="flex items-center gap-3 text-gray-700 dark:text-white/80 text-sm md:text-base">
-                      <div className="w-2 h-2 rounded-full bg-africrea-green-500" />
+                      <div className="w-2 h-2 rounded-full bg-africrea-green-500 flex-shrink-0" />
                       {item}
                     </li>
                   ))}
                 </ul>
               </div>
               
-              <div className="p-6 md:p-8 bg-africrea-gold-50 dark:bg-gradient-to-br dark:from-africrea-gold-500/10 dark:to-transparent border border-africrea-gold-200 dark:border-africrea-gold-500/20 rounded-2xl md:rounded-3xl">
+              <div className="p-6 md:p-8 bg-white dark:bg-[#1f1a0f] border-2 border-africrea-gold-200 dark:border-africrea-gold-500/30 rounded-2xl md:rounded-3xl shadow-lg shadow-africrea-gold-500/5">
+                <div className="w-12 h-12 rounded-xl bg-africrea-gold-500 flex items-center justify-center mb-4">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
                 <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-3 md:mb-4">Portfolio Automatique</h3>
-                <p className="text-gray-600 dark:text-white/60 mb-4 md:mb-6 text-sm md:text-base">
+                <p className="text-gray-600 dark:text-white/70 mb-4 md:mb-6 text-sm md:text-base">
                   Tous vos travaux validés sont automatiquement compilés dans un portfolio 
                   professionnel que vous pouvez partager avec vos futurs clients.
                 </p>
                 <ul className="space-y-2 md:space-y-3">
                   {['Historique complet', 'Export professionnel', 'Partage facile'].map((item) => (
                     <li key={item} className="flex items-center gap-3 text-gray-700 dark:text-white/80 text-sm md:text-base">
-                      <div className="w-2 h-2 rounded-full bg-africrea-gold-500" />
+                      <div className="w-2 h-2 rounded-full bg-africrea-gold-500 flex-shrink-0" />
                       {item}
                     </li>
                   ))}
