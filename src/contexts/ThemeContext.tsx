@@ -16,35 +16,23 @@ const ThemeContext = createContext<ThemeContextType>({
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('dark')
-  const [mounted, setMounted] = useState(false)
 
-  // Initialize theme on mount
+  // Sync with localStorage on mount
   useEffect(() => {
-    setMounted(true)
     const savedTheme = localStorage.getItem('africrea-theme') as Theme | null
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    
-    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light')
-    setTheme(initialTheme)
-    applyTheme(initialTheme)
+    if (savedTheme) {
+      setTheme(savedTheme)
+      document.documentElement.classList.remove('light', 'dark')
+      document.documentElement.classList.add(savedTheme)
+    }
   }, [])
-
-  const applyTheme = (newTheme: Theme) => {
-    const root = document.documentElement
-    root.classList.remove('light', 'dark')
-    root.classList.add(newTheme)
-    localStorage.setItem('africrea-theme', newTheme)
-  }
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark'
     setTheme(newTheme)
-    applyTheme(newTheme)
-  }
-
-  // Avoid hydration mismatch
-  if (!mounted) {
-    return <>{children}</>
+    document.documentElement.classList.remove('light', 'dark')
+    document.documentElement.classList.add(newTheme)
+    localStorage.setItem('africrea-theme', newTheme)
   }
 
   return (
