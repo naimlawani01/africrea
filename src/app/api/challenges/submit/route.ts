@@ -88,7 +88,7 @@ export async function GET() {
         challenge: true,
         feedbacks: {
           include: {
-            trainer: {
+            author: {
               select: { firstName: true, lastName: true }
             }
           }
