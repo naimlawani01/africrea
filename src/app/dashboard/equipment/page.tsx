@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Header from '@/components/dashboard/Header'
 import { 
@@ -16,98 +16,40 @@ import {
   AlertCircle,
   Clock,
   Filter,
-  ChevronRight
+  Loader2
 } from 'lucide-react'
 
-const equipment = [
-  {
-    id: '1',
-    name: 'Sony A7 III',
-    description: 'Caméra plein format 24.2MP, 4K HDR',
-    category: 'CAMERA',
-    status: 'AVAILABLE',
-    image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400',
-    specifications: { sensor: 'Full Frame', resolution: '24.2MP', video: '4K 30fps' },
-  },
-  {
-    id: '2',
-    name: 'Canon EOS R5',
-    description: 'Caméra mirrorless 45MP, 8K RAW',
-    category: 'CAMERA',
-    status: 'RESERVED',
-    image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400',
-    specifications: { sensor: 'Full Frame', resolution: '45MP', video: '8K 30fps' },
-    reservedBy: 'Jean-Marc K.',
-    reservedUntil: '2024-01-25',
-  },
-  {
-    id: '3',
-    name: 'Objectif Canon 24-70mm f/2.8',
-    description: 'Zoom standard professionnel série L',
-    category: 'LENS',
-    status: 'AVAILABLE',
-    image: 'https://images.unsplash.com/photo-1617005082133-548c4dd27f35?w=400',
-    specifications: { focal: '24-70mm', aperture: 'f/2.8', mount: 'Canon RF' },
-  },
-  {
-    id: '4',
-    name: 'Kit Aputure 600d Pro',
-    description: 'Éclairage LED 600W avec softbox',
-    category: 'LIGHTING',
-    status: 'IN_USE',
-    image: 'https://images.unsplash.com/photo-1598549746738-3fb2d6bdb0da?w=400',
-    specifications: { power: '600W', temperature: '5600K', CRI: '96+' },
-    inUseBy: 'Production "Aurora"',
-    returnDate: '2024-01-28',
-  },
-  {
-    id: '5',
-    name: 'Rode NTG5',
-    description: 'Micro canon broadcast ultra-léger',
-    category: 'AUDIO',
-    status: 'AVAILABLE',
-    image: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400',
-    specifications: { type: 'Shotgun', frequency: '20Hz-20kHz', weight: '76g' },
-  },
-  {
-    id: '6',
-    name: 'iMac Pro 27"',
-    description: 'Station de montage - 64GB RAM, 1TB SSD',
-    category: 'COMPUTER',
-    status: 'MAINTENANCE',
-    image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400',
-    specifications: { processor: 'Intel Xeon W', ram: '64GB', storage: '1TB SSD' },
-    maintenanceNote: 'Mise à jour système en cours',
-  },
-]
+interface Equipment {
+  id: string
+  name: string
+  description: string | null
+  category: string
+  status: string
+  image: string | null
+  reservations: {
+    user: { firstName: string; lastName: string }
+    endDate: string
+  }[]
+}
 
-const myReservations = [
-  {
-    id: 'r1',
-    equipmentName: 'Sony A7 III',
-    startDate: '2024-01-22',
-    endDate: '2024-01-24',
-    status: 'APPROVED',
-    purpose: 'Tournage court-métrage',
-  },
-  {
-    id: 'r2',
-    equipmentName: 'Kit Aputure 600d Pro',
-    startDate: '2024-01-29',
-    endDate: '2024-01-30',
-    status: 'PENDING',
-    purpose: 'Shooting portrait',
-  },
-]
+interface Reservation {
+  id: string
+  startDate: string
+  endDate: string
+  purpose: string
+  status: string
+  equipment: {
+    name: string
+  }
+}
 
-const categoryIcons: Record<string, React.ElementType> = {
+const categoryIcons: Record<string, typeof Camera> = {
   CAMERA: Camera,
   LENS: Aperture,
   LIGHTING: Sun,
   AUDIO: Mic,
   COMPUTER: Monitor,
-  GRIP: Package,
-  SOFTWARE: Package,
+  SOFTWARE: Monitor,
   OTHER: Package,
 }
 
@@ -117,36 +59,133 @@ const categoryLabels: Record<string, string> = {
   LIGHTING: 'Éclairage',
   AUDIO: 'Audio',
   COMPUTER: 'Ordinateurs',
-  GRIP: 'Grip',
   SOFTWARE: 'Logiciels',
   OTHER: 'Autre',
 }
 
-const statusConfig: Record<string, { label: string; bg: string; text: string; icon: React.ElementType }> = {
-  AVAILABLE: { label: 'Disponible', bg: 'bg-green-500/10', text: 'text-green-400', icon: Check },
-  RESERVED: { label: 'Réservé', bg: 'bg-yellow-500/10', text: 'text-yellow-400', icon: Calendar },
-  IN_USE: { label: 'En utilisation', bg: 'bg-blue-500/10', text: 'text-blue-400', icon: Clock },
-  MAINTENANCE: { label: 'Maintenance', bg: 'bg-red-500/10', text: 'text-red-400', icon: AlertCircle },
-  UNAVAILABLE: { label: 'Indisponible', bg: 'bg-gray-500/10', text: 'text-gray-400', icon: X },
+const statusConfig: Record<string, { label: string; bg: string; text: string; icon: typeof Check }> = {
+  AVAILABLE: { label: 'Disponible', bg: 'bg-green-500/20', text: 'text-green-400', icon: Check },
+  RESERVED: { label: 'Réservé', bg: 'bg-yellow-500/20', text: 'text-yellow-400', icon: Clock },
+  IN_USE: { label: 'En cours', bg: 'bg-blue-500/20', text: 'text-blue-400', icon: Clock },
+  MAINTENANCE: { label: 'Maintenance', bg: 'bg-red-500/20', text: 'text-red-400', icon: AlertCircle },
+  UNAVAILABLE: { label: 'Indisponible', bg: 'bg-gray-500/20', text: 'text-gray-400', icon: X },
 }
 
 const reservationStatusConfig: Record<string, { label: string; bg: string; text: string }> = {
-  PENDING: { label: 'En attente', bg: 'bg-yellow-500/10', text: 'text-yellow-400' },
-  APPROVED: { label: 'Confirmée', bg: 'bg-green-500/10', text: 'text-green-400' },
-  REJECTED: { label: 'Refusée', bg: 'bg-red-500/10', text: 'text-red-400' },
+  PENDING: { label: 'En attente', bg: 'bg-yellow-500/20', text: 'text-yellow-400' },
+  APPROVED: { label: 'Approuvé', bg: 'bg-green-500/20', text: 'text-green-400' },
+  REJECTED: { label: 'Refusé', bg: 'bg-red-500/20', text: 'text-red-400' },
+  ACTIVE: { label: 'En cours', bg: 'bg-blue-500/20', text: 'text-blue-400' },
+  COMPLETED: { label: 'Terminé', bg: 'bg-gray-500/20', text: 'text-gray-400' },
+  CANCELLED: { label: 'Annulé', bg: 'bg-gray-500/20', text: 'text-gray-400' },
 }
 
 export default function EquipmentPage() {
+  const [activeTab, setActiveTab] = useState<'catalog' | 'reservations'>('catalog')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [showReservationModal, setShowReservationModal] = useState(false)
-  const [selectedEquipment, setSelectedEquipment] = useState<typeof equipment[0] | null>(null)
-  const [activeTab, setActiveTab] = useState<'catalog' | 'reservations'>('catalog')
+  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null)
+  
+  const [equipment, setEquipment] = useState<Equipment[]>([])
+  const [myReservations, setMyReservations] = useState<Reservation[]>([])
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  // Form state
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [purpose, setPurpose] = useState('')
+
+  // Fetch equipment
+  useEffect(() => {
+    fetchEquipment()
+    fetchMyReservations()
+  }, [])
+
+  const fetchEquipment = async () => {
+    try {
+      const res = await fetch('/api/equipment')
+      if (res.ok) {
+        const data = await res.json()
+        setEquipment(data)
+      }
+    } catch (error) {
+      console.error('Error fetching equipment:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchMyReservations = async () => {
+    try {
+      const res = await fetch('/api/equipment/reserve')
+      if (res.ok) {
+        const data = await res.json()
+        setMyReservations(data)
+      }
+    } catch (error) {
+      console.error('Error fetching reservations:', error)
+    }
+  }
+
+  const handleReservation = async () => {
+    if (!selectedEquipment || !startDate || !endDate || !purpose) {
+      setMessage({ type: 'error', text: 'Veuillez remplir tous les champs' })
+      return
+    }
+
+    setSubmitting(true)
+    setMessage(null)
+
+    try {
+      const res = await fetch('/api/equipment/reserve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          equipmentId: selectedEquipment.id,
+          startDate,
+          endDate,
+          purpose
+        })
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'Réservation créée avec succès !' })
+        setShowReservationModal(false)
+        setStartDate('')
+        setEndDate('')
+        setPurpose('')
+        fetchEquipment()
+        fetchMyReservations()
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Erreur lors de la réservation' })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Erreur de connexion' })
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   const filteredEquipment = selectedCategory
     ? equipment.filter(e => e.category === selectedCategory)
     : equipment
 
   const availableCategories = Array.from(new Set(equipment.map(e => e.category)))
+
+  if (loading) {
+    return (
+      <>
+        <Header title="Gestion du Matériel" subtitle="Chargement..." />
+        <div className="flex items-center justify-center h-96">
+          <Loader2 className="w-8 h-8 text-africrea-green-500 animate-spin" />
+        </div>
+      </>
+    )
+  }
 
   return (
     <>
@@ -156,49 +195,63 @@ export default function EquipmentPage() {
       />
       
       <div className="p-8">
+        {/* Message */}
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${
+              message.type === 'success' 
+                ? 'bg-green-500/10 border border-green-500/30 text-green-400'
+                : 'bg-red-500/10 border border-red-500/30 text-red-400'
+            }`}
+          >
+            {message.type === 'success' ? <Check className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+            {message.text}
+          </motion.div>
+        )}
+
         {/* Tabs */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex gap-4 mb-8">
           <button
             onClick={() => setActiveTab('catalog')}
-            className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+            className={`px-6 py-3 rounded-xl font-medium transition-all ${
               activeTab === 'catalog'
                 ? 'bg-africrea-green-500 text-white'
                 : 'bg-white/5 text-white/60 hover:bg-white/10'
             }`}
           >
-            <Camera className="w-5 h-5 inline-block mr-2" />
             Catalogue
           </button>
           <button
             onClick={() => setActiveTab('reservations')}
-            className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+            className={`px-6 py-3 rounded-xl font-medium transition-all ${
               activeTab === 'reservations'
                 ? 'bg-africrea-green-500 text-white'
                 : 'bg-white/5 text-white/60 hover:bg-white/10'
             }`}
           >
-            <Calendar className="w-5 h-5 inline-block mr-2" />
-            Mes réservations
+            Mes Réservations
           </button>
         </div>
 
         {activeTab === 'catalog' ? (
           <>
-            {/* Category Filters */}
-            <div className="flex items-center gap-4 mb-8 overflow-x-auto pb-2">
-              <Filter className="w-5 h-5 text-white/60 flex-shrink-0" />
+            {/* Category Filter */}
+            <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-2">
               <button
                 onClick={() => setSelectedCategory(null)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap flex items-center gap-2 transition-all ${
                   !selectedCategory
                     ? 'bg-africrea-green-500 text-white'
                     : 'bg-white/5 text-white/60 hover:bg-white/10'
                 }`}
               >
-                Tout
+                <Filter className="w-4 h-4" />
+                Tous
               </button>
               {availableCategories.map((cat) => {
-                const Icon = categoryIcons[cat]
+                const Icon = categoryIcons[cat] || Package
                 return (
                   <button
                     key={cat}
@@ -210,7 +263,7 @@ export default function EquipmentPage() {
                     }`}
                   >
                     <Icon className="w-4 h-4" />
-                    {categoryLabels[cat]}
+                    {categoryLabels[cat] || cat}
                   </button>
                 )
               })}
@@ -219,9 +272,10 @@ export default function EquipmentPage() {
             {/* Equipment Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredEquipment.map((item) => {
-                const CategoryIcon = categoryIcons[item.category]
-                const status = statusConfig[item.status]
+                const CategoryIcon = categoryIcons[item.category] || Package
+                const status = statusConfig[item.status] || statusConfig.UNAVAILABLE
                 const StatusIcon = status.icon
+                const currentReservation = item.reservations?.[0]
                 
                 return (
                   <motion.div
@@ -232,12 +286,18 @@ export default function EquipmentPage() {
                     whileHover={{ y: -4 }}
                     className="bg-[#141414] border border-white/5 rounded-2xl overflow-hidden hover:border-africrea-green-500/30 transition-all duration-300"
                   >
-                    <div className="relative h-44 overflow-hidden">
-                      <img 
-                        src={item.image} 
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="relative h-44 overflow-hidden bg-white/5">
+                      {item.image ? (
+                        <img 
+                          src={item.image} 
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <CategoryIcon className="w-16 h-16 text-white/20" />
+                        </div>
+                      )}
                       <div className="absolute top-3 left-3 p-2 rounded-lg bg-black/50">
                         <CategoryIcon className="w-5 h-5 text-white" />
                       </div>
@@ -249,27 +309,17 @@ export default function EquipmentPage() {
 
                     <div className="p-5">
                       <h3 className="text-white font-semibold mb-2">{item.name}</h3>
-                      <p className="text-white/50 text-sm mb-4">{item.description}</p>
+                      <p className="text-white/50 text-sm mb-4">{item.description || 'Pas de description'}</p>
                       
-                      {item.status === 'RESERVED' && (
+                      {currentReservation && (
                         <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-sm">
-                          <span className="text-yellow-400">Réservé par {item.reservedBy}</span>
+                          <span className="text-yellow-400">
+                            Réservé par {currentReservation.user.firstName} {currentReservation.user.lastName}
+                          </span>
                           <br />
-                          <span className="text-yellow-400/70">Jusqu&apos;au {item.reservedUntil}</span>
-                        </div>
-                      )}
-                      
-                      {item.status === 'IN_USE' && (
-                        <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-sm">
-                          <span className="text-blue-400">{item.inUseBy}</span>
-                          <br />
-                          <span className="text-blue-400/70">Retour le {item.returnDate}</span>
-                        </div>
-                      )}
-                      
-                      {item.status === 'MAINTENANCE' && (
-                        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm">
-                          <span className="text-red-400">{item.maintenanceNote}</span>
+                          <span className="text-yellow-400/70">
+                            Jusqu&apos;au {new Date(currentReservation.endDate).toLocaleDateString('fr-FR')}
+                          </span>
                         </div>
                       )}
                       
@@ -293,6 +343,13 @@ export default function EquipmentPage() {
                 )
               })}
             </div>
+
+            {filteredEquipment.length === 0 && (
+              <div className="text-center py-16">
+                <Package className="w-16 h-16 text-white/20 mx-auto mb-4" />
+                <h3 className="text-white/60 text-lg">Aucun matériel trouvé</h3>
+              </div>
+            )}
           </>
         ) : (
           /* My Reservations */
@@ -305,7 +362,7 @@ export default function EquipmentPage() {
               </div>
             ) : (
               myReservations.map((reservation) => {
-                const statusConf = reservationStatusConfig[reservation.status]
+                const statusConf = reservationStatusConfig[reservation.status] || reservationStatusConfig.PENDING
                 return (
                   <motion.div
                     key={reservation.id}
@@ -314,7 +371,7 @@ export default function EquipmentPage() {
                     className="p-6 bg-[#141414] border border-white/5 rounded-2xl"
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-white font-semibold text-lg">{reservation.equipmentName}</h3>
+                      <h3 className="text-white font-semibold text-lg">{reservation.equipment.name}</h3>
                       <span className={`px-3 py-1.5 rounded-lg text-sm font-medium ${statusConf.bg} ${statusConf.text}`}>
                         {statusConf.label}
                       </span>
@@ -366,11 +423,23 @@ export default function EquipmentPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-white/70 text-sm font-medium mb-2">Date de début</label>
-                    <input type="date" className="input-field" />
+                    <input 
+                      type="date" 
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-africrea-green-500"
+                    />
                   </div>
                   <div>
                     <label className="block text-white/70 text-sm font-medium mb-2">Date de fin</label>
-                    <input type="date" className="input-field" />
+                    <input 
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      min={startDate || new Date().toISOString().split('T')[0]}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-africrea-green-500"
+                    />
                   </div>
                 </div>
                 
@@ -378,22 +447,35 @@ export default function EquipmentPage() {
                   <label className="block text-white/70 text-sm font-medium mb-2">Motif de la réservation</label>
                   <textarea
                     rows={3}
-                    className="input-field resize-none"
+                    value={purpose}
+                    onChange={(e) => setPurpose(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-white/30 focus:outline-none focus:border-africrea-green-500 resize-none"
                     placeholder="Décrivez l'utilisation prévue..."
                   />
                 </div>
 
                 <div className="flex gap-4">
                   <button
-                    onClick={() => setShowReservationModal(false)}
+                    onClick={() => {
+                      setShowReservationModal(false)
+                      setStartDate('')
+                      setEndDate('')
+                      setPurpose('')
+                    }}
                     className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl transition-colors"
                   >
                     Annuler
                   </button>
                   <button
-                    className="flex-1 py-3 bg-africrea-green-500 hover:bg-africrea-green-600 text-white font-medium rounded-xl transition-colors"
+                    onClick={handleReservation}
+                    disabled={submitting}
+                    className="flex-1 py-3 bg-africrea-green-500 hover:bg-africrea-green-600 disabled:bg-africrea-green-500/50 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
                   >
-                    Confirmer
+                    {submitting ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      'Confirmer'
+                    )}
                   </button>
                 </div>
               </div>
@@ -404,4 +486,3 @@ export default function EquipmentPage() {
     </>
   )
 }
-
