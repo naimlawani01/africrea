@@ -16,6 +16,9 @@ import {
   LogOut,
   ChevronRight,
   Briefcase,
+  ClipboardList,
+  PlusCircle,
+  Shield,
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -39,6 +42,12 @@ const menuItems = [
     href: '/dashboard/challenges', 
     icon: Trophy,
     roles: ['ADMIN', 'TRAINER', 'STUDENT']
+  },
+  { 
+    name: 'Créer un Défi', 
+    href: '/dashboard/challenges/create', 
+    icon: PlusCircle,
+    roles: ['ADMIN', 'TRAINER']
   },
   { 
     name: 'Mon Portfolio', 
@@ -65,6 +74,12 @@ const menuItems = [
     roles: ['ADMIN', 'TRAINER', 'STUDENT']
   },
   { 
+    name: 'Réservations', 
+    href: '/dashboard/admin/reservations', 
+    icon: ClipboardList,
+    roles: ['ADMIN', 'TRAINER']
+  },
+  { 
     name: 'Événements', 
     href: '/dashboard/events', 
     icon: Calendar,
@@ -75,6 +90,12 @@ const menuItems = [
     href: '/dashboard/students', 
     icon: Users,
     roles: ['ADMIN', 'TRAINER']
+  },
+  { 
+    name: 'Administration', 
+    href: '/dashboard/admin', 
+    icon: Shield,
+    roles: ['ADMIN']
   },
   { 
     name: 'Paramètres', 
@@ -94,6 +115,12 @@ const poleNames: Record<string, string> = {
   GRAPHISME: 'Graphisme',
   ANIMATION_3D: 'Animation 3D',
   AUDIOVISUEL: 'Audiovisuel',
+}
+
+const roleConfig: Record<string, { label: string; color: string }> = {
+  ADMIN: { label: 'Administrateur', color: 'bg-red-500' },
+  TRAINER: { label: 'Formateur', color: 'bg-africrea-gold-500' },
+  STUDENT: { label: 'Étudiant', color: 'bg-africrea-green-500' },
 }
 
 export default function Sidebar({ user }: SidebarProps) {
@@ -130,12 +157,18 @@ export default function Sidebar({ user }: SidebarProps) {
             <div className="text-white/40 text-sm truncate">{user.email}</div>
           </div>
         </div>
-        {user.pole && (
-          <div className="mt-3 flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${poleColors[user.pole] || 'bg-gray-500'}`} />
-            <span className="text-white/60 text-sm">{poleNames[user.pole] || user.pole}</span>
-          </div>
-        )}
+        <div className="mt-3 flex items-center gap-2 flex-wrap">
+          {/* Role Badge */}
+          <span className={`px-2 py-1 rounded-md text-xs font-medium text-white ${roleConfig[user.role]?.color || 'bg-gray-500'}`}>
+            {roleConfig[user.role]?.label || user.role}
+          </span>
+          {/* Pole Badge */}
+          {user.pole && (
+            <span className={`px-2 py-1 rounded-md text-xs font-medium text-white ${poleColors[user.pole] || 'bg-gray-500'}`}>
+              {poleNames[user.pole] || user.pole}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Navigation */}
