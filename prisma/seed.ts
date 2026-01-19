@@ -96,7 +96,8 @@ async function main() {
   }
   console.log('✅ Étudiants créés')
 
-  // Créer des défis
+  // Créer des défis (dates futures)
+  const now = new Date()
   const challenges = [
     {
       title: 'Identité Visuelle Startup',
@@ -104,7 +105,7 @@ async function main() {
       brief: 'La startup "NeuraTech" recherche une identité moderne. Créez un logo, une palette et des mockups.',
       pole: 'GRAPHISME',
       difficulty: 'INTERMEDIATE',
-      deadline: new Date('2024-02-15'),
+      deadline: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000), // +14 jours
       creatorId: trainer1.id,
     },
     {
@@ -113,7 +114,7 @@ async function main() {
       brief: 'Créez une animation de 5 secondes d\'un logo avec des rotations et effets de lumière.',
       pole: 'ANIMATION_3D',
       difficulty: 'ADVANCED',
-      deadline: new Date('2024-02-20'),
+      deadline: new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000), // +21 jours
       creatorId: trainer3.id,
     },
     {
@@ -122,7 +123,7 @@ async function main() {
       brief: 'Écrivez, tournez et montez un court-métrage de 3 minutes maximum.',
       pole: 'AUDIOVISUEL',
       difficulty: 'EXPERT',
-      deadline: new Date('2024-03-01'),
+      deadline: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000), // +30 jours
       creatorId: trainer2.id,
     },
   ]
@@ -151,37 +152,83 @@ async function main() {
   }
   console.log('✅ Matériel créé')
 
-  // Créer des événements
+  // Créer des événements (dates futures - dans le mois en cours et le suivant)
+  const event1Date = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000) // +3 jours
+  event1Date.setHours(14, 0, 0, 0)
+  const event1EndDate = new Date(event1Date)
+  event1EndDate.setHours(17, 0, 0, 0)
+
+  const event2Date = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) // +7 jours
+  event2Date.setHours(10, 0, 0, 0)
+  const event2EndDate = new Date(event2Date)
+  event2EndDate.setHours(13, 0, 0, 0)
+
+  const event3Date = new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000) // +10 jours
+  event3Date.setHours(9, 0, 0, 0)
+  const event3EndDate = new Date(event3Date)
+  event3EndDate.setHours(12, 0, 0, 0)
+
+  const event4Date = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000) // +14 jours
+  event4Date.setHours(18, 0, 0, 0)
+  const event4EndDate = new Date(event4Date)
+  event4EndDate.setHours(20, 0, 0, 0)
+
+  const event5Date = new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000) // +21 jours
+  event5Date.setHours(15, 0, 0, 0)
+  const event5EndDate = new Date(event5Date)
+  event5EndDate.setHours(18, 0, 0, 0)
+
   const events = [
     {
       title: 'Masterclass Design UI/UX',
-      description: 'Apprenez les fondamentaux du design d\'interface',
+      description: 'Apprenez les fondamentaux du design d\'interface avec un expert du domaine.',
       type: 'MASTERCLASS',
-      date: new Date('2024-02-01T14:00:00'),
-      endDate: new Date('2024-02-01T17:00:00'),
+      date: event1Date,
+      endDate: event1EndDate,
       location: 'Studio A',
       maxAttendees: 20,
       creatorId: trainer1.id,
     },
     {
-      title: 'Atelier Blender - Bases',
-      description: 'Introduction à la modélisation 3D',
+      title: 'Atelier Blender - Modélisation',
+      description: 'Introduction à la modélisation 3D avec Blender. Apportez votre ordinateur!',
       type: 'WORKSHOP',
-      date: new Date('2024-02-05T10:00:00'),
-      endDate: new Date('2024-02-05T13:00:00'),
+      date: event2Date,
+      endDate: event2EndDate,
       location: 'Salle Informatique',
       maxAttendees: 15,
       creatorId: trainer3.id,
     },
     {
-      title: 'Session Studio Éclairage',
-      description: 'Pratique des techniques d\'éclairage portrait',
+      title: 'Session Studio Éclairage Portrait',
+      description: 'Pratique des techniques d\'éclairage portrait en studio professionnel.',
       type: 'STUDIO_SESSION',
-      date: new Date('2024-02-10T09:00:00'),
-      endDate: new Date('2024-02-10T12:00:00'),
+      date: event3Date,
+      endDate: event3EndDate,
       location: 'Studio Photo',
       maxAttendees: 8,
       creatorId: trainer2.id,
+    },
+    {
+      title: 'Conférence - Cinéma Africain',
+      description: 'Discussion sur les tendances et opportunités du cinéma africain contemporain.',
+      type: 'CONFERENCE',
+      date: event4Date,
+      endDate: event4EndDate,
+      location: 'Auditorium Africréa',
+      maxAttendees: 50,
+      isOnline: true,
+      creatorId: trainer2.id,
+    },
+    {
+      title: 'Networking Créatifs',
+      description: 'Rencontrez d\'autres créatifs et élargissez votre réseau professionnel.',
+      type: 'NETWORKING',
+      date: event5Date,
+      endDate: event5EndDate,
+      location: 'Rooftop Africréa',
+      maxAttendees: 30,
+      creatorId: admin.id,
     },
   ]
 
@@ -192,29 +239,41 @@ async function main() {
   }
   console.log('✅ Événements créés')
 
-  // Créer des projets
+  // Créer des projets (dates futures)
   const projects = [
     {
-      title: 'Tournage Publicité Locale',
-      description: 'Publicité pour une marque de cosmétiques',
+      title: 'Tournage Publicité "Origine"',
+      description: 'Tournage d\'une publicité pour une marque de cosmétiques locaux. Recherche de techniciens lumière et assistants caméra.',
       type: 'COMMERCIAL',
       status: 'UPCOMING',
-      startDate: new Date('2024-02-15'),
-      endDate: new Date('2024-02-17'),
+      startDate: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000), // +15 jours
+      endDate: new Date(now.getTime() + 17 * 24 * 60 * 60 * 1000), // +17 jours
       location: 'Studio Africréa',
       maxParticipants: 8,
+      requirements: 'Expérience en éclairage studio souhaitée',
       creatorId: trainer2.id,
     },
     {
       title: 'Court-métrage "L\'Héritage"',
-      description: 'Production d\'un court-métrage de 15 minutes',
+      description: 'Production d\'un court-métrage de 15 minutes sur le thème de la transmission. Équipe complète recherchée.',
       type: 'FILM_SHOOTING',
       status: 'IN_PROGRESS',
-      startDate: new Date('2024-01-15'),
-      endDate: new Date('2024-02-28'),
+      startDate: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000), // -5 jours (déjà commencé)
+      endDate: new Date(now.getTime() + 25 * 24 * 60 * 60 * 1000), // +25 jours
       location: 'Extérieurs Abidjan',
       maxParticipants: 12,
+      requirements: 'Disponibilité les week-ends',
       creatorId: trainer2.id,
+    },
+    {
+      title: 'Shooting Photo Collection Mode',
+      description: 'Séance photo pour une collection de mode africaine contemporaine. Photographes et stylistes bienvenus.',
+      type: 'PHOTO_SHOOT',
+      status: 'UPCOMING',
+      startDate: new Date(now.getTime() + 20 * 24 * 60 * 60 * 1000), // +20 jours
+      location: 'Plateau, Abidjan',
+      maxParticipants: 6,
+      creatorId: trainer1.id,
     },
   ]
 
