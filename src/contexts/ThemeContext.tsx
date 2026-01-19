@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 
 type Theme = 'dark' | 'light'
 
@@ -36,13 +36,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('africrea-theme', theme)
   }, [theme, mounted])
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setThemeState(prev => prev === 'dark' ? 'light' : 'dark')
-  }
+  }, [])
 
-  const setTheme = (newTheme: Theme) => {
+  const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme)
-  }
+  }, [])
 
   // Prevent flash during hydration
   if (!mounted) {
@@ -65,6 +65,12 @@ export function useTheme() {
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider')
   }
+  return context
+}
+
+// Safe hook that doesn't throw if used outside provider
+export function useThemeSafe() {
+  const context = useContext(ThemeContext)
   return context
 }
 
