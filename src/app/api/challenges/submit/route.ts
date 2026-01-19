@@ -50,8 +50,8 @@ export async function POST(req: Request) {
     const submission = await prisma.submission.create({
       data: {
         challengeId,
-        userId: session.user.id,
-        fileUrl: fileUrl || '/uploads/placeholder.zip',
+        studentId: session.user.id,
+        files: fileUrl || '/uploads/placeholder.zip',
         description: description || '',
         status: 'PENDING'
       },
@@ -83,10 +83,10 @@ export async function GET() {
     }
 
     const submissions = await prisma.submission.findMany({
-      where: { userId: session.user.id },
+      where: { studentId: session.user.id },
       include: {
         challenge: true,
-        feedback: {
+        feedbacks: {
           include: {
             trainer: {
               select: { firstName: true, lastName: true }
@@ -94,7 +94,7 @@ export async function GET() {
           }
         }
       },
-      orderBy: { submittedAt: 'desc' }
+      orderBy: { createdAt: 'desc' }
     })
 
     return NextResponse.json(submissions)
@@ -106,4 +106,3 @@ export async function GET() {
     )
   }
 }
-

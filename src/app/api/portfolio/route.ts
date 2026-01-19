@@ -18,12 +18,12 @@ export async function GET() {
     // Récupérer les soumissions validées (APPROVED) de l'étudiant
     const submissions = await prisma.submission.findMany({
       where: {
-        userId: session.user.id,
+        studentId: session.user.id,
         status: 'APPROVED'
       },
       include: {
         challenge: true,
-        feedback: {
+        feedbacks: {
           include: {
             trainer: {
               select: { firstName: true, lastName: true }
@@ -31,7 +31,7 @@ export async function GET() {
           }
         }
       },
-      orderBy: { submittedAt: 'desc' }
+      orderBy: { createdAt: 'desc' }
     })
 
     // Transformer en format portfolio
@@ -42,10 +42,10 @@ export async function GET() {
       category: sub.challenge.pole,
       thumbnail: sub.challenge.thumbnail,
       grade: sub.grade,
-      createdAt: sub.submittedAt,
+      createdAt: sub.createdAt,
       challengeId: sub.challengeId,
-      fileUrl: sub.fileUrl,
-      feedback: sub.feedback.length > 0 ? sub.feedback[0].content : null
+      fileUrl: sub.files,
+      feedback: sub.feedbacks.length > 0 ? sub.feedbacks[0].content : null
     }))
 
     // Stats
@@ -65,4 +65,3 @@ export async function GET() {
     )
   }
 }
-
