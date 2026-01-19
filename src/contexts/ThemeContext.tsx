@@ -1,76 +1,57 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 
 type Theme = 'dark' | 'light'
 
 interface ThemeContextType {
   theme: Theme
   toggleTheme: () => void
-  setTheme: (theme: Theme) => void
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
+const ThemeContext = createContext<ThemeContextType>({
+  theme: 'dark',
+  toggleTheme: () => {},
+})
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('dark')
+  const [theme, setTheme] = useState<Theme>('dark')
   const [mounted, setMounted] = useState(false)
 
+  // Initialize theme on mount
   useEffect(() => {
     setMounted(true)
-    // Check localStorage or system preference
-    const savedTheme = localStorage.getItem('africrea-theme') as Theme
-    if (savedTheme) {
-      setThemeState(savedTheme)
-    } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-      setThemeState('light')
-    }
+    const savedTheme = localStorage.getItem('africrea-theme') as Theme | null
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    
+    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light')
+    setTheme(initialTheme)
+    applyTheme(initialTheme)
   }, [])
 
-  useEffect(() => {
-    if (!mounted) return
-    
+  const applyTheme = (newTheme: Theme) => {
     const root = document.documentElement
     root.classList.remove('light', 'dark')
-    root.classList.add(theme)
-    localStorage.setItem('africrea-theme', theme)
-  }, [theme, mounted])
+    root.classList.add(newTheme)
+    localStorage.setItem('africrea-theme', newTheme)
+  }
 
-  const toggleTheme = useCallback(() => {
-    setThemeState(prev => prev === 'dark' ? 'light' : 'dark')
-  }, [])
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark'
+    setTheme(newTheme)
+    applyTheme(newTheme)
+  }
 
-  const setTheme = useCallback((newTheme: Theme) => {
-    setThemeState(newTheme)
-  }, [])
-
-  // Prevent flash during hydration
+  // Avoid hydration mismatch
   if (!mounted) {
-    return (
-      <div style={{ visibility: 'hidden' }}>
-        {children}
-      </div>
-    )
+    return <>{children}</>
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   )
 }
 
-export function useTheme() {
-  const context = useContext(ThemeContext)
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider')
-  }
-  return context
-}
-
-// Safe hook that doesn't throw if used outside provider
-export function useThemeSafe() {
-  const context = useContext(ThemeContext)
-  return context
-}
-
+export const useTheme = () => useContext(ThemeContext)
