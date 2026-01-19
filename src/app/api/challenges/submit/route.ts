@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 
-// POST - Soumettre un travail pour un défi
+// POST - Soumettre un travail pour un défi (Étudiants seulement)
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions)
@@ -12,6 +12,14 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: 'Non autorisé' },
         { status: 401 }
+      )
+    }
+
+    // Seuls les étudiants peuvent soumettre des travaux
+    if (session.user.role !== 'STUDENT') {
+      return NextResponse.json(
+        { error: 'Seuls les étudiants peuvent soumettre des travaux' },
+        { status: 403 }
       )
     }
 

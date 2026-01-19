@@ -62,10 +62,22 @@ const menuItems = [
     roles: ['ADMIN', 'TRAINER', 'STUDENT']
   },
   { 
+    name: 'Ajouter Vidéo', 
+    href: '/dashboard/videos/create', 
+    icon: PlusCircle,
+    roles: ['ADMIN', 'TRAINER']
+  },
+  { 
     name: 'Projets Pro', 
     href: '/dashboard/projects', 
     icon: Briefcase,
     roles: ['ADMIN', 'TRAINER', 'STUDENT']
+  },
+  { 
+    name: 'Créer Projet', 
+    href: '/dashboard/projects/create', 
+    icon: PlusCircle,
+    roles: ['ADMIN', 'TRAINER']
   },
   { 
     name: 'Matériel', 
