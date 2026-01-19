@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
+import { useState, useEffect } from 'react'
 import {
   LayoutDashboard,
   Trophy,
@@ -19,7 +20,10 @@ import {
   ClipboardList,
   PlusCircle,
   Shield,
+  Menu,
+  X,
 } from 'lucide-react'
+import ThemeToggle from '@/components/ThemeToggle'
 
 interface SidebarProps {
   user: {
@@ -130,53 +134,67 @@ const poleNames: Record<string, string> = {
 }
 
 const roleConfig: Record<string, { label: string; color: string }> = {
-  ADMIN: { label: 'Administrateur', color: 'bg-red-500' },
+  ADMIN: { label: 'Admin', color: 'bg-red-500' },
   TRAINER: { label: 'Formateur', color: 'bg-africrea-gold-500' },
   STUDENT: { label: 'Étudiant', color: 'bg-africrea-green-500' },
 }
 
 export default function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [pathname])
 
   const filteredMenuItems = menuItems.filter(item => 
     item.roles.includes(user.role)
   )
 
-  return (
-    <aside className="fixed left-0 top-0 h-screen w-72 bg-[#0d0d0d] border-r border-white/5 flex flex-col z-50">
+  const SidebarContent = () => (
+    <>
       {/* Logo */}
-      <div className="p-6 border-b border-white/5">
-        <Link href="/dashboard" className="flex items-center">
+      <div className="p-4 lg:p-6 border-b border-gray-200 dark:border-white/5">
+        <Link href="/dashboard" className="flex items-center justify-center lg:justify-start">
           <Image
             src="/logo.png"
             alt="Africréa"
             width={180}
             height={60}
             priority
-            className="h-12 w-auto"
+            className="h-10 lg:h-12 w-auto object-contain"
           />
         </Link>
       </div>
 
       {/* User Info */}
-      <div className="p-4 mx-4 mt-4 rounded-xl bg-white/5 border border-white/5">
+      <div className="p-3 lg:p-4 mx-3 lg:mx-4 mt-3 lg:mt-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-africrea-green-500 to-africrea-green-600 flex items-center justify-center text-white font-semibold">
+          <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-gradient-to-br from-africrea-green-500 to-africrea-green-600 flex items-center justify-center text-white font-semibold text-sm lg:text-base flex-shrink-0">
             {user.name.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-white font-medium truncate">{user.name}</div>
-            <div className="text-white/40 text-sm truncate">{user.email}</div>
+            <div className="text-gray-900 dark:text-white font-medium truncate text-sm lg:text-base">{user.name}</div>
+            <div className="text-gray-500 dark:text-white/40 text-xs lg:text-sm truncate">{user.email}</div>
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-2 flex-wrap">
-          {/* Role Badge */}
-          <span className={`px-2 py-1 rounded-md text-xs font-medium text-white ${roleConfig[user.role]?.color || 'bg-gray-500'}`}>
+        <div className="mt-2 lg:mt-3 flex items-center gap-2 flex-wrap">
+          <span className={`px-2 py-0.5 lg:py-1 rounded-md text-xs font-medium text-white ${roleConfig[user.role]?.color || 'bg-gray-500'}`}>
             {roleConfig[user.role]?.label || user.role}
           </span>
-          {/* Pole Badge */}
           {user.pole && (
-            <span className={`px-2 py-1 rounded-md text-xs font-medium text-white ${poleColors[user.pole] || 'bg-gray-500'}`}>
+            <span className={`px-2 py-0.5 lg:py-1 rounded-md text-xs font-medium text-white ${poleColors[user.pole] || 'bg-gray-500'}`}>
               {poleNames[user.pole] || user.pole}
             </span>
           )}
@@ -184,7 +202,7 @@ export default function Sidebar({ user }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-6 px-4 overflow-y-auto">
+      <nav className="flex-1 py-4 lg:py-6 px-3 lg:px-4 overflow-y-auto">
         <ul className="space-y-1">
           {filteredMenuItems.map((item) => {
             const isActive = pathname === item.href || 
@@ -194,22 +212,22 @@ export default function Sidebar({ user }: SidebarProps) {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+                  className={`relative flex items-center gap-3 px-3 lg:px-4 py-2.5 lg:py-3 rounded-xl transition-all duration-200 group ${
                     isActive
-                      ? 'bg-africrea-green-500/10 text-africrea-green-400'
-                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                      ? 'bg-africrea-green-500/10 text-africrea-green-600 dark:text-africrea-green-400'
+                      : 'text-gray-600 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="activeNav"
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-africrea-green-500 rounded-r-full"
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 lg:h-6 bg-africrea-green-500 rounded-r-full"
                     />
                   )}
-                  <item.icon className={`w-5 h-5 ${isActive ? 'text-africrea-green-400' : 'text-white/40 group-hover:text-white/60'}`} />
-                  <span className="flex-1">{item.name}</span>
+                  <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-africrea-green-600 dark:text-africrea-green-400' : 'text-gray-400 dark:text-white/40 group-hover:text-gray-600 dark:group-hover:text-white/60'}`} />
+                  <span className="flex-1 text-sm lg:text-base">{item.name}</span>
                   {isActive && (
-                    <ChevronRight className="w-4 h-4 text-africrea-green-400" />
+                    <ChevronRight className="w-4 h-4 text-africrea-green-600 dark:text-africrea-green-400 hidden lg:block" />
                   )}
                 </Link>
               </li>
@@ -218,20 +236,78 @@ export default function Sidebar({ user }: SidebarProps) {
         </ul>
       </nav>
 
-      {/* Logout */}
-      <div className="p-4 border-t border-white/5">
+      {/* Theme Toggle & Logout */}
+      <div className="p-3 lg:p-4 border-t border-gray-200 dark:border-white/5 space-y-2">
+        <div className="flex items-center justify-between px-3 lg:px-4 py-2">
+          <span className="text-sm text-gray-600 dark:text-white/60">Thème</span>
+          <ThemeToggle />
+        </div>
         <button
           onClick={() => {
-            // Sign out logic
             window.location.href = '/api/auth/signout'
           }}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200"
+          className="w-full flex items-center gap-3 px-3 lg:px-4 py-2.5 lg:py-3 rounded-xl text-gray-600 dark:text-white/60 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200"
         >
           <LogOut className="w-5 h-5" />
-          <span>Déconnexion</span>
+          <span className="text-sm lg:text-base">Déconnexion</span>
         </button>
       </div>
-    </aside>
+    </>
+  )
+
+  return (
+    <>
+      {/* Mobile Header Bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-[#0d0d0d] border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-4 z-50">
+        <Link href="/dashboard" className="flex items-center">
+          <Image
+            src="/logo.png"
+            alt="Africréa"
+            width={120}
+            height={40}
+            priority
+            className="h-8 w-auto object-contain"
+          />
+        </Link>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="lg:hidden fixed inset-0 bg-black/50 z-40"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'tween', duration: 0.3 }}
+              className="lg:hidden fixed left-0 top-16 bottom-0 w-72 bg-white dark:bg-[#0d0d0d] border-r border-gray-200 dark:border-white/5 flex flex-col z-50 overflow-hidden"
+            >
+              <SidebarContent />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-72 bg-white dark:bg-[#0d0d0d] border-r border-gray-200 dark:border-white/5 flex-col z-50">
+        <SidebarContent />
+      </aside>
+    </>
   )
 }
-

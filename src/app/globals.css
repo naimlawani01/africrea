@@ -5,6 +5,9 @@
 /* Import Google Fonts - Playfair Display pour les titres, Source Sans 3 pour le corps */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap');
 
+/* =========================
+   CSS Variables - Dark Mode (default)
+   ========================= */
 :root {
   --font-display: 'Playfair Display', serif;
   --font-sans: 'Source Sans 3', system-ui, sans-serif;
@@ -13,13 +16,36 @@
   --africrea-green-dark: #1f8a51;
   --africrea-gold: #facc17;
   --africrea-gold-dark: #c8a312;
-  
-  --bg-dark: #0a0a0a;
+}
+
+/* Dark theme variables */
+.dark {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1a1a1a;
   --bg-card: #141414;
   --bg-card-hover: #1a1a1a;
   --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.1);
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
+  --text-muted: rgba(255, 255, 255, 0.5);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Light theme variables */
+.light {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-default: rgba(0, 0, 0, 0.1);
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: rgba(0, 0, 0, 0.5);
+  --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -32,13 +58,13 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background: var(--bg-dark);
-  color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* Background patterns */
+/* =========================
+   Background Patterns
+   ========================= */
 .bg-pattern-dots {
   background-image: radial-gradient(circle, var(--africrea-green) 1px, transparent 1px);
   background-size: 30px 30px;
@@ -51,27 +77,33 @@ body {
   background-size: 50px 50px;
 }
 
-/* Glassmorphism */
+/* =========================
+   Glassmorphism
+   ========================= */
 .glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+}
+
+.dark .glass {
   background: rgba(20, 20, 20, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-subtle);
 }
 
-.glass-light {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-subtle);
+.light .glass {
+  background: rgba(255, 255, 255, 0.8);
 }
 
-/* Custom scrollbar */
+/* =========================
+   Custom Scrollbar
+   ========================= */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-dark);
+  background: var(--bg-primary);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -83,13 +115,17 @@ body {
   background: var(--africrea-green-dark);
 }
 
-/* Text selection */
+/* =========================
+   Text Selection
+   ========================= */
 ::selection {
   background: var(--africrea-green);
   color: white;
 }
 
-/* Gradient text */
+/* =========================
+   Gradient Text
+   ========================= */
 .gradient-text {
   background: linear-gradient(135deg, var(--africrea-green) 0%, var(--africrea-gold) 100%);
   -webkit-background-clip: text;
@@ -97,7 +133,9 @@ body {
   background-clip: text;
 }
 
-/* Glow effects */
+/* =========================
+   Glow Effects
+   ========================= */
 .glow-green {
   box-shadow: 0 0 20px rgba(39, 173, 101, 0.3);
 }
@@ -106,48 +144,94 @@ body {
   box-shadow: 0 0 20px rgba(250, 204, 23, 0.3);
 }
 
-/* Hover card effect */
+/* =========================
+   Hover Card Effect
+   ========================= */
 .hover-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hover-card:hover {
   transform: translateY(-4px);
+}
+
+.dark .hover-card:hover {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
-/* Button styles */
+.light .hover-card:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================
+   Button Styles
+   ========================= */
 .btn-primary {
   @apply px-6 py-3 bg-africrea-green-500 text-white font-semibold rounded-xl;
   @apply hover:bg-africrea-green-600 transition-all duration-300;
-  @apply focus:outline-none focus:ring-2 focus:ring-africrea-green-500 focus:ring-offset-2 focus:ring-offset-black;
+  @apply focus:outline-none focus:ring-2 focus:ring-africrea-green-500 focus:ring-offset-2;
+}
+
+.dark .btn-primary {
+  @apply focus:ring-offset-black;
+}
+
+.light .btn-primary {
+  @apply focus:ring-offset-white;
 }
 
 .btn-secondary {
   @apply px-6 py-3 bg-africrea-gold-500 text-black font-semibold rounded-xl;
   @apply hover:bg-africrea-gold-600 transition-all duration-300;
-  @apply focus:outline-none focus:ring-2 focus:ring-africrea-gold-500 focus:ring-offset-2 focus:ring-offset-black;
+  @apply focus:outline-none focus:ring-2 focus:ring-africrea-gold-500 focus:ring-offset-2;
 }
 
 .btn-ghost {
-  @apply px-6 py-3 bg-transparent text-white font-semibold rounded-xl border border-white/20;
-  @apply hover:bg-white/10 transition-all duration-300;
+  @apply px-6 py-3 bg-transparent font-semibold rounded-xl border transition-all duration-300;
 }
 
-/* Input styles */
+.dark .btn-ghost {
+  @apply text-white border-white/20 hover:bg-white/10;
+}
+
+.light .btn-ghost {
+  @apply text-gray-900 border-gray-300 hover:bg-gray-100;
+}
+
+/* =========================
+   Input Styles
+   ========================= */
 .input-field {
-  @apply w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white;
-  @apply placeholder:text-white/40 focus:outline-none focus:border-africrea-green-500;
-  @apply transition-all duration-300;
+  @apply w-full px-4 py-3 rounded-xl transition-all duration-300;
+  @apply focus:outline-none focus:border-africrea-green-500 focus:ring-2 focus:ring-africrea-green-500/20;
 }
 
-/* Card styles */
+.dark .input-field {
+  @apply bg-white/5 border border-white/10 text-white placeholder:text-white/40;
+}
+
+.light .input-field {
+  @apply bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400;
+}
+
+/* =========================
+   Card Styles
+   ========================= */
 .card {
-  @apply bg-[#141414] border border-white/5 rounded-2xl p-6;
-  @apply hover:border-africrea-green-500/30 transition-all duration-300;
+  @apply rounded-2xl p-6 transition-all duration-300;
 }
 
-/* Pole badges */
+.dark .card {
+  @apply bg-[#141414] border border-white/5 hover:border-africrea-green-500/30;
+}
+
+.light .card {
+  @apply bg-white border border-gray-100 shadow-sm hover:border-africrea-green-500/30 hover:shadow-md;
+}
+
+/* =========================
+   Pole Badges
+   ========================= */
 .badge-graphisme {
   @apply bg-purple-500/20 text-purple-400 border border-purple-500/30;
 }
@@ -160,7 +244,21 @@ body {
   @apply bg-orange-500/20 text-orange-400 border border-orange-500/30;
 }
 
-/* Status badges */
+.light .badge-graphisme {
+  @apply bg-purple-100 text-purple-600 border-purple-200;
+}
+
+.light .badge-animation {
+  @apply bg-blue-100 text-blue-600 border-blue-200;
+}
+
+.light .badge-audiovisuel {
+  @apply bg-orange-100 text-orange-600 border-orange-200;
+}
+
+/* =========================
+   Status Badges
+   ========================= */
 .status-pending {
   @apply bg-yellow-500/20 text-yellow-400;
 }
@@ -177,14 +275,34 @@ body {
   @apply bg-blue-500/20 text-blue-400;
 }
 
-/* Animation delays for stagger effects */
+.light .status-pending {
+  @apply bg-yellow-100 text-yellow-600;
+}
+
+.light .status-approved {
+  @apply bg-green-100 text-green-600;
+}
+
+.light .status-rejected {
+  @apply bg-red-100 text-red-600;
+}
+
+.light .status-reviewing {
+  @apply bg-blue-100 text-blue-600;
+}
+
+/* =========================
+   Animation Delays
+   ========================= */
 .delay-100 { animation-delay: 100ms; }
 .delay-200 { animation-delay: 200ms; }
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
 .delay-500 { animation-delay: 500ms; }
 
-/* Loading spinner */
+/* =========================
+   Loading Spinner
+   ========================= */
 .spinner {
   width: 40px;
   height: 40px;
@@ -198,7 +316,9 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* Shimmer loading effect */
+/* =========================
+   Shimmer Loading Effect
+   ========================= */
 .shimmer {
   background: linear-gradient(
     90deg,
@@ -210,30 +330,56 @@ body {
   animation: shimmer 1.5s infinite;
 }
 
+.light .shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.03) 25%,
+    rgba(0, 0, 0, 0.06) 50%,
+    rgba(0, 0, 0, 0.03) 75%
+  );
+  background-size: 200% 100%;
+}
+
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 
-/* Page transitions */
-.page-enter {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.page-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 300ms, transform 300ms;
-}
-
-/* Tooltip */
+/* =========================
+   Tooltip
+   ========================= */
 .tooltip {
-  @apply absolute z-50 px-3 py-2 text-sm bg-gray-900 text-white rounded-lg shadow-lg;
+  @apply absolute z-50 px-3 py-2 text-sm rounded-lg shadow-lg;
   @apply opacity-0 invisible transition-all duration-200;
+}
+
+.dark .tooltip {
+  @apply bg-gray-900 text-white;
+}
+
+.light .tooltip {
+  @apply bg-gray-800 text-white;
 }
 
 .tooltip-trigger:hover .tooltip {
   @apply opacity-100 visible;
 }
 
+/* =========================
+   Mobile Responsive Helpers
+   ========================= */
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+  
+  .show-on-mobile {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .show-on-mobile {
+    display: none !important;
+  }
+}

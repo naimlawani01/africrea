@@ -22,9 +22,11 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] transition-colors duration-300">
       <Sidebar user={user} />
-      <main className="ml-72 min-h-screen">
+      {/* pt-16 for mobile header, lg:pt-0 for desktop */}
+      {/* lg:ml-72 for desktop sidebar offset */}
+      <main className="pt-16 lg:pt-0 lg:ml-72 min-h-screen">
         {children}
       </main>
     </div>
