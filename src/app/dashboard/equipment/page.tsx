@@ -146,7 +146,7 @@ export default function EquipmentPage() {
     ? equipment.filter(e => e.category === selectedCategory)
     : equipment
 
-  const availableCategories = [...new Set(equipment.map(e => e.category))]
+  const availableCategories = Array.from(new Set(equipment.map(e => e.category)))
 
   return (
     <>
